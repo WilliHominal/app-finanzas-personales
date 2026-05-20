@@ -9,7 +9,7 @@ pub fn run() {
                 .add_migrations(db::DB_URL, db::migraciones())
                 .build(),
         )
-        .invoke_handler(tauri::generate_handler![comandos::calcular_saldos])
+        .invoke_handler(tauri::generate_handler![comandos::resumen_patrimonial])
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(

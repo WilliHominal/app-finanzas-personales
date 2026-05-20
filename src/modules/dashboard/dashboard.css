@@ -1,3 +1,119 @@
+.resumen {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.resumen-izquierda {
+  display: flex;
+  flex: 1 1 340px;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.total {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  background: var(--bg);
+  padding: 16px 20px;
+}
+
+.total-etiqueta {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.total-valor {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Tarjeta destacada del patrimonio consolidado */
+.consolidado {
+  display: flex;
+  flex: 0 1 380px;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--accent);
+  border-radius: var(--radio);
+  padding: 18px 22px;
+}
+
+.consolidado-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.consolidado-cuerpo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.consolidado-etiqueta {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.consolidado-valor {
+  font-family: var(--font-mono);
+  font-size: 30px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.consolidado-vacio {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Switch segmentado */
+.switch {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.switch-opcion {
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 999px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.switch-opcion:hover {
+  color: #ffffff;
+}
+
+.switch-opcion.activa,
+.switch-opcion.activa:hover {
+  background: #ffffff;
+  color: var(--accent);
+}
+
 .bloque {
   margin-bottom: 22px;
 }

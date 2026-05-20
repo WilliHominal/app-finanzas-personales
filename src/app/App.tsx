@@ -3,15 +3,22 @@ import { PantallaCuentas } from "../modules/cuentas/PantallaCuentas";
 import { PantallaDashboard } from "../modules/dashboard/PantallaDashboard";
 import { PantallaMovimientos } from "../modules/movimientos/PantallaMovimientos";
 import { PantallaCategorias } from "../modules/parametros/PantallaCategorias";
+import { PantallaCotizaciones } from "../modules/parametros/PantallaCotizaciones";
 import "./App.css";
 
-type Vista = "dashboard" | "movimientos" | "cuentas" | "categorias";
+type Vista =
+  | "dashboard"
+  | "movimientos"
+  | "cuentas"
+  | "categorias"
+  | "cotizaciones";
 
 const NAVEGACION: { id: Vista; etiqueta: string }[] = [
   { id: "dashboard", etiqueta: "Dashboard" },
   { id: "movimientos", etiqueta: "Movimientos" },
   { id: "cuentas", etiqueta: "Cuentas" },
   { id: "categorias", etiqueta: "Categorías" },
+  { id: "cotizaciones", etiqueta: "Cotizaciones" },
 ];
 
 function App() {
@@ -39,6 +46,7 @@ function App() {
         {vista === "movimientos" && <PantallaMovimientos />}
         {vista === "cuentas" && <PantallaCuentas />}
         {vista === "categorias" && <PantallaCategorias />}
+        {vista === "cotizaciones" && <PantallaCotizaciones />}
       </main>
     </div>
   );
