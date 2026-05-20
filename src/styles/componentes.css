@@ -1,3 +1,5 @@
+/* Estilos de componentes reutilizables entre módulos. */
+
 .pantalla-encabezado {
   margin-bottom: 24px;
 }
@@ -12,10 +14,11 @@
   margin: 4px 0 0;
   color: var(--muted);
   font-size: 14px;
-  max-width: 60ch;
+  max-width: 64ch;
 }
 
-.formulario-cuenta {
+/* Formulario en línea */
+.formulario {
   display: flex;
   flex-wrap: wrap;
   gap: 14px;
@@ -54,10 +57,11 @@
   border-color: var(--accent);
 }
 
-.campo-nombre input {
+.campo-ancho input {
   min-width: 220px;
 }
 
+/* Botones */
 .boton-primario {
   background: var(--accent);
   color: #fff;
@@ -72,61 +76,6 @@
   opacity: 0.6;
 }
 
-.error {
-  color: var(--expense);
-  font-size: 13px;
-  margin: 0;
-  width: 100%;
-}
-
-.tabla-cuentas {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radio);
-  overflow: hidden;
-}
-
-.tabla-cuentas th,
-.tabla-cuentas td {
-  text-align: left;
-  padding: 11px 16px;
-  border-bottom: 1px solid var(--border);
-  font-size: 14px;
-}
-
-.tabla-cuentas th {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--muted);
-  background: var(--bg-soft);
-  font-weight: 600;
-}
-
-.tabla-cuentas tbody tr:last-child td {
-  border-bottom: 0;
-}
-
-.fila-archivada td {
-  opacity: 0.5;
-}
-
-.insignia {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
-.insignia.archivada {
-  background: var(--bg-code);
-  color: var(--muted);
-}
-
 .boton-tenue {
   background: transparent;
   border: 1px solid var(--border);
@@ -139,6 +88,89 @@
 .boton-tenue:hover {
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.error {
+  color: var(--expense);
+  font-size: 13px;
+  margin: 0;
+  width: 100%;
+}
+
+/* Tabla de datos */
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  overflow: hidden;
+}
+
+.tabla th,
+.tabla td {
+  text-align: left;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.tabla th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  background: var(--bg-soft);
+  font-weight: 600;
+}
+
+.tabla tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.fila-tenue td {
+  opacity: 0.5;
+}
+
+/* Insignia / etiqueta */
+.insignia {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.insignia.tenue {
+  background: var(--bg-code);
+  color: var(--muted);
+}
+
+/* Monto numérico */
+.monto {
+  font-family: var(--font-mono);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.monto.ingreso {
+  color: var(--income);
+}
+
+.monto.gasto {
+  color: var(--expense);
+}
+
+/* Muestra de color */
+.color-muestra {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  vertical-align: middle;
 }
 
 .vacio {

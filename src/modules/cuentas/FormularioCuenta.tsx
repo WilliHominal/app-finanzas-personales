@@ -41,8 +41,8 @@ export function FormularioCuenta({ monedas, onCuentaCreada }: Props) {
   }
 
   return (
-    <form className="formulario-cuenta" onSubmit={manejarEnvio}>
-      <div className="campo campo-nombre">
+    <form className="formulario" onSubmit={manejarEnvio}>
+      <div className="campo campo-ancho">
         <label htmlFor="cuenta-nombre">Nombre</label>
         <input
           id="cuenta-nombre"

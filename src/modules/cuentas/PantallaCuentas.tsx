@@ -3,7 +3,6 @@ import { listarMonedas, type Moneda } from "../../shared/monedas";
 import { cambiarEstadoCuenta, listarCuentas } from "./cuentas.repositorio";
 import { ETIQUETA_TIPO, type Cuenta, type EstadoCuenta } from "./cuentas.tipos";
 import { FormularioCuenta } from "./FormularioCuenta";
-import "./cuentas.css";
 
 export function PantallaCuentas() {
   const [cuentas, setCuentas] = useState<Cuenta[]>([]);
@@ -60,7 +59,7 @@ export function PantallaCuentas() {
       ) : cuentas.length === 0 ? (
         <p className="vacio">Todavía no hay cuentas. Creá la primera arriba.</p>
       ) : (
-        <table className="tabla-cuentas">
+        <table className="tabla">
           <thead>
             <tr>
               <th>Nombre</th>
@@ -74,7 +73,7 @@ export function PantallaCuentas() {
             {cuentas.map((cuenta) => (
               <tr
                 key={cuenta.id}
-                className={cuenta.estado === "Archivada" ? "fila-archivada" : ""}
+                className={cuenta.estado === "Archivada" ? "fila-tenue" : ""}
               >
                 <td>{cuenta.nombre}</td>
                 <td>{ETIQUETA_TIPO[cuenta.tipo]}</td>
@@ -83,7 +82,7 @@ export function PantallaCuentas() {
                   <span
                     className={
                       cuenta.estado === "Archivada"
-                        ? "insignia archivada"
+                        ? "insignia tenue"
                         : "insignia"
                     }
                   >
