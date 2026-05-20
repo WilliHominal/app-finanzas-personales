@@ -61,8 +61,9 @@ export function PantallaMovimientos() {
     return categorias.find((c) => c.id === id)?.nombre ?? "—";
   }
 
-  function codigoMonedaDeCuenta(id: number | null): string {
-    const cuenta = id === null ? undefined : cuentas.find((c) => c.id === id);
+  function codigoMoneda(cuentaId: number | null): string {
+    const cuenta =
+      cuentaId === null ? undefined : cuentas.find((c) => c.id === cuentaId);
     if (!cuenta) return "";
     return monedas.find((m) => m.id === cuenta.monedaId)?.codigo ?? "";
   }
@@ -76,6 +77,36 @@ export function PantallaMovimientos() {
     await eliminarMovimiento(movimiento.id);
     if (enEdicion?.id === movimiento.id) setEnEdicion(null);
     cargar();
+  }
+
+  function celdaCuenta(mov: Movimiento) {
+    if (mov.tipo === "Transferencia") {
+      return `${nombreCuenta(mov.cuentaOrigenId)} → ${nombreCuenta(mov.cuentaDestinoId)}`;
+    }
+    const id = mov.tipo === "Gasto" ? mov.cuentaOrigenId : mov.cuentaDestinoId;
+    return nombreCuenta(id);
+  }
+
+  function celdaMonto(mov: Movimiento) {
+    if (mov.tipo === "Transferencia") {
+      const codO = codigoMoneda(mov.cuentaOrigenId);
+      const codD = codigoMoneda(mov.cuentaDestinoId);
+      const salida = `${formatearMonto(mov.montoOrigen)} ${codO}`;
+      if (codO !== codD) {
+        return `${salida} → ${formatearMonto(mov.montoDestino)} ${codD}`;
+      }
+      return salida;
+    }
+    const esGasto = mov.tipo === "Gasto";
+    const monto = esGasto ? mov.montoOrigen : mov.montoDestino;
+    const cuentaId = esGasto ? mov.cuentaOrigenId : mov.cuentaDestinoId;
+    return `${esGasto ? "−" : ""}${formatearMonto(monto)} ${codigoMoneda(cuentaId)}`;
+  }
+
+  function claseMonto(mov: Movimiento): string {
+    if (mov.tipo === "Ingreso") return "monto ingreso";
+    if (mov.tipo === "Gasto") return "monto gasto";
+    return "monto";
   }
 
   return (
@@ -121,51 +152,37 @@ export function PantallaMovimientos() {
             </tr>
           </thead>
           <tbody>
-            {movimientos.map((mov) => {
-              const esGasto = mov.tipo === "Gasto";
-              const cuentaId = esGasto ? mov.cuentaOrigenId : mov.cuentaDestinoId;
-              const monto = esGasto ? mov.montoOrigen : mov.montoDestino;
-              const claseMonto =
-                mov.tipo === "Ingreso"
-                  ? "monto ingreso"
-                  : esGasto
-                    ? "monto gasto"
-                    : "monto";
-              return (
-                <tr
-                  key={mov.id}
-                  className={enEdicion?.id === mov.id ? "fila-tenue" : ""}
-                >
-                  <td>{mov.fecha}</td>
-                  <td>{mov.tipo}</td>
-                  <td>{nombreCuenta(cuentaId)}</td>
-                  <td>{nombreCategoria(mov.categoriaId)}</td>
-                  <td>{mov.descripcion || "—"}</td>
-                  <td className={claseMonto}>
-                    {esGasto ? "−" : ""}
-                    {formatearMonto(monto)} {codigoMonedaDeCuenta(cuentaId)}
-                  </td>
-                  <td>
-                    <div className="acciones">
-                      <button
-                        type="button"
-                        className="boton-tenue"
-                        onClick={() => setEnEdicion(mov)}
-                      >
-                        Editar
-                      </button>
-                      <button
-                        type="button"
-                        className="boton-tenue"
-                        onClick={() => borrar(mov)}
-                      >
-                        Borrar
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+            {movimientos.map((mov) => (
+              <tr
+                key={mov.id}
+                className={enEdicion?.id === mov.id ? "fila-tenue" : ""}
+              >
+                <td>{mov.fecha}</td>
+                <td>{mov.tipo}</td>
+                <td>{celdaCuenta(mov)}</td>
+                <td>{nombreCategoria(mov.categoriaId)}</td>
+                <td>{mov.descripcion || "—"}</td>
+                <td className={claseMonto(mov)}>{celdaMonto(mov)}</td>
+                <td>
+                  <div className="acciones">
+                    <button
+                      type="button"
+                      className="boton-tenue"
+                      onClick={() => setEnEdicion(mov)}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      className="boton-tenue"
+                      onClick={() => borrar(mov)}
+                    >
+                      Borrar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       )}

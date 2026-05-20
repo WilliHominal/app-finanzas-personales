@@ -22,5 +22,11 @@ pub fn migraciones() -> Vec<Migration> {
             sql: include_str!("../migrations/0002_cuenta_categoria_movimiento.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 3,
+            description: "crear_cotizacion",
+            sql: include_str!("../migrations/0003_cotizacion.sql"),
+            kind: MigrationKind::Up,
+        },
     ]
 }

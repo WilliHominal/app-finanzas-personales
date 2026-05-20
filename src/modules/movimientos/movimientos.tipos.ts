@@ -23,9 +23,10 @@ export interface NuevoMovimiento {
   categoriaId: number | null;
 }
 
-/** Tipos que se pueden registrar desde el alta de la Fase 1. */
-export const TIPOS_ALTA: Exclude<TipoMovimiento, "Transferencia">[] = [
+/** Tipos de movimiento que se pueden registrar. */
+export const TIPOS_MOVIMIENTO: TipoMovimiento[] = [
   "Apertura",
   "Ingreso",
   "Gasto",
+  "Transferencia",
 ];
