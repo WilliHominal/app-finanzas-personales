@@ -3,8 +3,11 @@ import { describe, it, expect } from "vitest";
 import App from "./App";
 
 describe("App", () => {
-  it("renderiza el nombre de la aplicación", () => {
+  it("muestra la marca de la aplicación", async () => {
     render(<App />);
-    expect(screen.getByRole("heading", { name: "Finanzas" })).toBeInTheDocument();
+
+    expect(
+      await screen.findByRole("heading", { name: "Finanzas" }),
+    ).toBeInTheDocument();
   });
 });

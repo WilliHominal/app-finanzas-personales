@@ -1,0 +1,149 @@
+.pantalla-encabezado {
+  margin-bottom: 24px;
+}
+
+.pantalla-encabezado h2 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.pantalla-encabezado p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  max-width: 60ch;
+}
+
+.formulario-cuenta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-end;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  padding: 18px 20px;
+  margin-bottom: 24px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.campo label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.campo input,
+.campo select {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 14px;
+  background: var(--bg);
+}
+
+.campo input:focus,
+.campo select:focus {
+  outline: 2px solid var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.campo-nombre input {
+  min-width: 220px;
+}
+
+.boton-primario {
+  background: var(--accent);
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.boton-primario:disabled {
+  opacity: 0.6;
+}
+
+.error {
+  color: var(--expense);
+  font-size: 13px;
+  margin: 0;
+  width: 100%;
+}
+
+.tabla-cuentas {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  overflow: hidden;
+}
+
+.tabla-cuentas th,
+.tabla-cuentas td {
+  text-align: left;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.tabla-cuentas th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  background: var(--bg-soft);
+  font-weight: 600;
+}
+
+.tabla-cuentas tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.fila-archivada td {
+  opacity: 0.5;
+}
+
+.insignia {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.insignia.archivada {
+  background: var(--bg-code);
+  color: var(--muted);
+}
+
+.boton-tenue {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.boton-tenue:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.vacio {
+  color: var(--muted);
+  font-size: 14px;
+  padding: 28px;
+  text-align: center;
+}
