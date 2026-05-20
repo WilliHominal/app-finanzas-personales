@@ -179,3 +179,8 @@
   padding: 28px;
   text-align: center;
 }
+
+.acciones {
+  display: flex;
+  gap: 8px;
+}

@@ -16,6 +16,7 @@ export interface Cuenta {
   tipo: TipoCuenta;
   monedaId: number;
   estado: EstadoCuenta;
+  enUso: boolean;
 }
 
 export interface NuevaCuenta {

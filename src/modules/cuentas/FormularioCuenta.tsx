@@ -1,17 +1,32 @@
 import { useState, type FormEvent } from "react";
 import type { Moneda } from "../../shared/monedas";
-import { crearCuenta } from "./cuentas.repositorio";
-import { ETIQUETA_TIPO, TIPOS_CUENTA, type TipoCuenta } from "./cuentas.tipos";
+import { actualizarCuenta, crearCuenta } from "./cuentas.repositorio";
+import {
+  ETIQUETA_TIPO,
+  TIPOS_CUENTA,
+  type Cuenta,
+  type TipoCuenta,
+} from "./cuentas.tipos";
 
 interface Props {
   monedas: Moneda[];
-  onCuentaCreada: () => void;
+  cuentaAEditar: Cuenta | null;
+  onGuardada: () => void;
+  onCancelar: () => void;
 }
 
-export function FormularioCuenta({ monedas, onCuentaCreada }: Props) {
-  const [nombre, setNombre] = useState("");
-  const [tipo, setTipo] = useState<TipoCuenta>("Efectivo");
-  const [monedaId, setMonedaId] = useState("");
+export function FormularioCuenta({
+  monedas,
+  cuentaAEditar,
+  onGuardada,
+  onCancelar,
+}: Props) {
+  const editando = cuentaAEditar !== null;
+  const [nombre, setNombre] = useState(cuentaAEditar?.nombre ?? "");
+  const [tipo, setTipo] = useState<TipoCuenta>(cuentaAEditar?.tipo ?? "Efectivo");
+  const [monedaId, setMonedaId] = useState(
+    cuentaAEditar ? String(cuentaAEditar.monedaId) : "",
+  );
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
 
@@ -28,13 +43,18 @@ export function FormularioCuenta({ monedas, onCuentaCreada }: Props) {
     setError("");
     setGuardando(true);
     try {
-      await crearCuenta({ nombre: nombre.trim(), tipo, monedaId: Number(monedaId) });
-      setNombre("");
-      setTipo("Efectivo");
-      setMonedaId("");
-      onCuentaCreada();
+      const datos = { nombre: nombre.trim(), tipo, monedaId: Number(monedaId) };
+      if (cuentaAEditar) {
+        await actualizarCuenta(cuentaAEditar.id, datos);
+      } else {
+        await crearCuenta(datos);
+        setNombre("");
+        setTipo("Efectivo");
+        setMonedaId("");
+      }
+      onGuardada();
     } catch (e) {
-      setError(`No se pudo crear la cuenta: ${e}`);
+      setError(`No se pudo guardar la cuenta: ${e}`);
     } finally {
       setGuardando(false);
     }
@@ -81,8 +101,13 @@ export function FormularioCuenta({ monedas, onCuentaCreada }: Props) {
         </select>
       </div>
       <button type="submit" className="boton-primario" disabled={guardando}>
-        {guardando ? "Guardando…" : "Crear cuenta"}
+        {guardando ? "Guardando…" : editando ? "Guardar cambios" : "Crear cuenta"}
       </button>
+      {editando && (
+        <button type="button" className="boton-tenue" onClick={onCancelar}>
+          Cancelar
+        </button>
+      )}
       {error && <p className="error">{error}</p>}
     </form>
   );

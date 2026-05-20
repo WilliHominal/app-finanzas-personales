@@ -1,32 +1,63 @@
 import { useState, type FormEvent } from "react";
 import type { Cuenta } from "../cuentas/cuentas.tipos";
 import type { Categoria } from "../parametros/categorias.tipos";
-import { crearMovimiento } from "./movimientos.repositorio";
-import { TIPOS_ALTA, type NuevoMovimiento } from "./movimientos.tipos";
+import { actualizarMovimiento, crearMovimiento } from "./movimientos.repositorio";
+import { TIPOS_ALTA, type Movimiento, type NuevoMovimiento } from "./movimientos.tipos";
 
 type TipoAlta = (typeof TIPOS_ALTA)[number];
 
 interface Props {
   cuentas: Cuenta[];
   categorias: Categoria[];
-  onMovimientoCreado: () => void;
+  movimientoAEditar: Movimiento | null;
+  onGuardado: () => void;
+  onCancelar: () => void;
 }
 
 function hoy(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+function cuentaInicial(movimiento: Movimiento | null): string {
+  if (!movimiento) return "";
+  const id =
+    movimiento.tipo === "Gasto"
+      ? movimiento.cuentaOrigenId
+      : movimiento.cuentaDestinoId;
+  return id !== null ? String(id) : "";
+}
+
+function montoInicial(movimiento: Movimiento | null): string {
+  if (!movimiento) return "";
+  return (
+    (movimiento.tipo === "Gasto"
+      ? movimiento.montoOrigen
+      : movimiento.montoDestino) ?? ""
+  );
+}
+
 export function FormularioMovimiento({
   cuentas,
   categorias,
-  onMovimientoCreado,
+  movimientoAEditar,
+  onGuardado,
+  onCancelar,
 }: Props) {
-  const [tipo, setTipo] = useState<TipoAlta>("Gasto");
-  const [fecha, setFecha] = useState(hoy());
-  const [cuentaId, setCuentaId] = useState("");
-  const [monto, setMonto] = useState("");
-  const [categoriaId, setCategoriaId] = useState("");
-  const [descripcion, setDescripcion] = useState("");
+  const editando = movimientoAEditar !== null;
+  const [tipo, setTipo] = useState<TipoAlta>(
+    (movimientoAEditar?.tipo as TipoAlta | undefined) ?? "Gasto",
+  );
+  const [fecha, setFecha] = useState(movimientoAEditar?.fecha ?? hoy());
+  const [cuentaId, setCuentaId] = useState(cuentaInicial(movimientoAEditar));
+  const [monto, setMonto] = useState(montoInicial(movimientoAEditar));
+  const [categoriaId, setCategoriaId] = useState(
+    movimientoAEditar?.categoriaId != null
+      ? String(movimientoAEditar.categoriaId)
+      : "",
+  );
+  const [descripcion, setDescripcion] = useState(
+    movimientoAEditar?.descripcion ?? "",
+  );
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
 
@@ -63,7 +94,7 @@ export function FormularioMovimiento({
       const descripcionFinal =
         descripcion.trim() || (tipo === "Apertura" ? "Saldo inicial" : "");
 
-      const nuevo: NuevoMovimiento = {
+      const datos: NuevoMovimiento = {
         fecha,
         descripcion: descripcionFinal,
         tipo,
@@ -73,11 +104,16 @@ export function FormularioMovimiento({
         montoDestino: esEgreso ? null : montoTexto,
         categoriaId: usaCategoria ? Number(categoriaId) : null,
       };
-      await crearMovimiento(nuevo);
-      setMonto("");
-      setDescripcion("");
-      setCategoriaId("");
-      onMovimientoCreado();
+
+      if (movimientoAEditar) {
+        await actualizarMovimiento(movimientoAEditar.id, datos);
+      } else {
+        await crearMovimiento(datos);
+        setMonto("");
+        setDescripcion("");
+        setCategoriaId("");
+      }
+      onGuardado();
     } catch (e) {
       setError(`No se pudo registrar el movimiento: ${e}`);
     } finally {
@@ -164,8 +200,13 @@ export function FormularioMovimiento({
         />
       </div>
       <button type="submit" className="boton-primario" disabled={guardando}>
-        {guardando ? "Guardando…" : "Registrar"}
+        {guardando ? "Guardando…" : editando ? "Guardar cambios" : "Registrar"}
       </button>
+      {editando && (
+        <button type="button" className="boton-tenue" onClick={onCancelar}>
+          Cancelar
+        </button>
+      )}
       {error && <p className="error">{error}</p>}
     </form>
   );

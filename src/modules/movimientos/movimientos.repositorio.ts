@@ -54,6 +54,31 @@ export async function crearMovimiento(nuevo: NuevoMovimiento): Promise<void> {
   );
 }
 
+export async function actualizarMovimiento(
+  id: number,
+  datos: NuevoMovimiento,
+): Promise<void> {
+  const db = await obtenerDb();
+  await db.execute(
+    `UPDATE movimiento SET
+       fecha = $1, descripcion = $2, tipo = $3, cuenta_origen_id = $4,
+       cuenta_destino_id = $5, monto_origen = $6, monto_destino = $7,
+       categoria_id = $8
+     WHERE id = $9`,
+    [
+      datos.fecha,
+      datos.descripcion,
+      datos.tipo,
+      datos.cuentaOrigenId,
+      datos.cuentaDestinoId,
+      datos.montoOrigen,
+      datos.montoDestino,
+      datos.categoriaId,
+      id,
+    ],
+  );
+}
+
 export async function eliminarMovimiento(id: number): Promise<void> {
   const db = await obtenerDb();
   await db.execute("DELETE FROM movimiento WHERE id = $1", [id]);

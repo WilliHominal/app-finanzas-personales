@@ -7,12 +7,16 @@ interface FilaCategoria {
   tipo: string;
   color: string | null;
   activa: number;
+  usos: number;
 }
 
 export async function listarCategorias(): Promise<Categoria[]> {
   const db = await obtenerDb();
   const filas = await db.select<FilaCategoria[]>(
-    "SELECT id, nombre, tipo, color, activa FROM categoria ORDER BY tipo, nombre",
+    `SELECT c.id, c.nombre, c.tipo, c.color, c.activa,
+            (SELECT COUNT(*) FROM movimiento m WHERE m.categoria_id = c.id) AS usos
+     FROM categoria c
+     ORDER BY c.tipo, c.nombre`,
   );
   return filas.map((fila) => ({
     id: fila.id,
@@ -20,6 +24,7 @@ export async function listarCategorias(): Promise<Categoria[]> {
     tipo: fila.tipo as TipoCategoria,
     color: fila.color,
     activa: fila.activa === 1,
+    enUso: fila.usos > 0,
   }));
 }
 
@@ -40,4 +45,10 @@ export async function cambiarEstadoCategoria(
     activa ? 1 : 0,
     id,
   ]);
+}
+
+/** Elimina una categoría. Solo es seguro si no tiene movimientos asociados. */
+export async function eliminarCategoria(id: number): Promise<void> {
+  const db = await obtenerDb();
+  await db.execute("DELETE FROM categoria WHERE id = $1", [id]);
 }

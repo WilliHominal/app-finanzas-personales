@@ -14,6 +14,7 @@ export function PantallaMovimientos() {
   const [cuentas, setCuentas] = useState<Cuenta[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [monedas, setMonedas] = useState<Moneda[]>([]);
+  const [enEdicion, setEnEdicion] = useState<Movimiento | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
@@ -66,8 +67,14 @@ export function PantallaMovimientos() {
     return monedas.find((m) => m.id === cuenta.monedaId)?.codigo ?? "";
   }
 
+  function terminarEdicion() {
+    setEnEdicion(null);
+    cargar();
+  }
+
   async function borrar(movimiento: Movimiento) {
     await eliminarMovimiento(movimiento.id);
+    if (enEdicion?.id === movimiento.id) setEnEdicion(null);
     cargar();
   }
 
@@ -85,9 +92,12 @@ export function PantallaMovimientos() {
         </p>
       ) : (
         <FormularioMovimiento
+          key={enEdicion ? `editar-${enEdicion.id}` : "nuevo"}
           cuentas={cuentasActivas}
           categorias={categoriasActivas}
-          onMovimientoCreado={cargar}
+          movimientoAEditar={enEdicion}
+          onGuardado={terminarEdicion}
+          onCancelar={() => setEnEdicion(null)}
         />
       )}
 
@@ -122,7 +132,10 @@ export function PantallaMovimientos() {
                     ? "monto gasto"
                     : "monto";
               return (
-                <tr key={mov.id}>
+                <tr
+                  key={mov.id}
+                  className={enEdicion?.id === mov.id ? "fila-tenue" : ""}
+                >
                   <td>{mov.fecha}</td>
                   <td>{mov.tipo}</td>
                   <td>{nombreCuenta(cuentaId)}</td>
@@ -133,13 +146,22 @@ export function PantallaMovimientos() {
                     {formatearMonto(monto)} {codigoMonedaDeCuenta(cuentaId)}
                   </td>
                   <td>
-                    <button
-                      type="button"
-                      className="boton-tenue"
-                      onClick={() => borrar(mov)}
-                    >
-                      Borrar
-                    </button>
+                    <div className="acciones">
+                      <button
+                        type="button"
+                        className="boton-tenue"
+                        onClick={() => setEnEdicion(mov)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        className="boton-tenue"
+                        onClick={() => borrar(mov)}
+                      >
+                        Borrar
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

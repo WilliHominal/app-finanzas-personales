@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { cambiarEstadoCategoria, listarCategorias } from "./categorias.repositorio";
+import {
+  cambiarEstadoCategoria,
+  eliminarCategoria,
+  listarCategorias,
+} from "./categorias.repositorio";
 import type { Categoria } from "./categorias.tipos";
 import { FormularioCategoria } from "./FormularioCategoria";
 
@@ -28,11 +32,19 @@ export function PantallaCategorias() {
     cargar();
   }
 
+  async function borrar(categoria: Categoria) {
+    await eliminarCategoria(categoria.id);
+    cargar();
+  }
+
   return (
     <section>
       <header className="pantalla-encabezado">
         <h2>Categorías</h2>
-        <p>El catálogo con el que clasificás tus ingresos y gastos.</p>
+        <p>
+          El catálogo con el que clasificás tus ingresos y gastos. Una categoría
+          sin movimientos se puede eliminar; si ya tiene uso, se desactiva.
+        </p>
       </header>
 
       <FormularioCategoria onCategoriaCreada={cargar} />
@@ -80,13 +92,23 @@ export function PantallaCategorias() {
                   </span>
                 </td>
                 <td>
-                  <button
-                    type="button"
-                    className="boton-tenue"
-                    onClick={() => alternarEstado(categoria)}
-                  >
-                    {categoria.activa ? "Desactivar" : "Activar"}
-                  </button>
+                  {categoria.enUso ? (
+                    <button
+                      type="button"
+                      className="boton-tenue"
+                      onClick={() => alternarEstado(categoria)}
+                    >
+                      {categoria.activa ? "Desactivar" : "Activar"}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="boton-tenue"
+                      onClick={() => borrar(categoria)}
+                    >
+                      Eliminar
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

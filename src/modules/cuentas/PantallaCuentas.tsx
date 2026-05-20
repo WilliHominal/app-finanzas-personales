@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { listarMonedas, type Moneda } from "../../shared/monedas";
-import { cambiarEstadoCuenta, listarCuentas } from "./cuentas.repositorio";
+import {
+  cambiarEstadoCuenta,
+  eliminarCuenta,
+  listarCuentas,
+} from "./cuentas.repositorio";
 import { ETIQUETA_TIPO, type Cuenta, type EstadoCuenta } from "./cuentas.tipos";
 import { FormularioCuenta } from "./FormularioCuenta";
 
 export function PantallaCuentas() {
   const [cuentas, setCuentas] = useState<Cuenta[]>([]);
   const [monedas, setMonedas] = useState<Moneda[]>([]);
+  const [cuentaEnEdicion, setCuentaEnEdicion] = useState<Cuenta | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
@@ -34,9 +39,20 @@ export function PantallaCuentas() {
     return monedas.find((m) => m.id === monedaId)?.codigo ?? "—";
   }
 
+  function terminarEdicion() {
+    setCuentaEnEdicion(null);
+    cargar();
+  }
+
   async function alternarEstado(cuenta: Cuenta) {
     const nuevo: EstadoCuenta = cuenta.estado === "Activa" ? "Archivada" : "Activa";
     await cambiarEstadoCuenta(cuenta.id, nuevo);
+    cargar();
+  }
+
+  async function borrar(cuenta: Cuenta) {
+    await eliminarCuenta(cuenta.id);
+    if (cuentaEnEdicion?.id === cuenta.id) setCuentaEnEdicion(null);
     cargar();
   }
 
@@ -50,7 +66,13 @@ export function PantallaCuentas() {
         </p>
       </header>
 
-      <FormularioCuenta monedas={monedas} onCuentaCreada={cargar} />
+      <FormularioCuenta
+        key={cuentaEnEdicion ? `editar-${cuentaEnEdicion.id}` : "nueva"}
+        monedas={monedas}
+        cuentaAEditar={cuentaEnEdicion}
+        onGuardada={terminarEdicion}
+        onCancelar={() => setCuentaEnEdicion(null)}
+      />
 
       {error && <p className="error">{error}</p>}
 
@@ -90,13 +112,32 @@ export function PantallaCuentas() {
                   </span>
                 </td>
                 <td>
-                  <button
-                    type="button"
-                    className="boton-tenue"
-                    onClick={() => alternarEstado(cuenta)}
-                  >
-                    {cuenta.estado === "Activa" ? "Archivar" : "Activar"}
-                  </button>
+                  <div className="acciones">
+                    <button
+                      type="button"
+                      className="boton-tenue"
+                      onClick={() => setCuentaEnEdicion(cuenta)}
+                    >
+                      Editar
+                    </button>
+                    {cuenta.enUso ? (
+                      <button
+                        type="button"
+                        className="boton-tenue"
+                        onClick={() => alternarEstado(cuenta)}
+                      >
+                        {cuenta.estado === "Activa" ? "Archivar" : "Activar"}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="boton-tenue"
+                        onClick={() => borrar(cuenta)}
+                      >
+                        Eliminar
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

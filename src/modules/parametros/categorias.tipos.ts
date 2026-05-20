@@ -6,6 +6,7 @@ export interface Categoria {
   tipo: TipoCategoria;
   color: string | null;
   activa: boolean;
+  enUso: boolean;
 }
 
 export interface NuevaCategoria {
