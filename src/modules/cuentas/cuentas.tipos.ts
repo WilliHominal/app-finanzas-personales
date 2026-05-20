@@ -47,3 +47,31 @@ export const TIPOS_CUENTA: TipoCuenta[] = [
   "PrestamoOtorgado",
   "PrestamoRecibido",
 ];
+
+/** Bloques de liquidez con los que el dashboard agrupa las cuentas. */
+export type BloqueLiquidez =
+  | "Disponibilidad Fija"
+  | "Disponibilidad Remunerada"
+  | "Cripto Líquido"
+  | "Inversiones de Crecimiento"
+  | "Por Cobrar / Por Pagar";
+
+export const BLOQUE_DE_TIPO: Record<TipoCuenta, BloqueLiquidez> = {
+  Efectivo: "Disponibilidad Fija",
+  BancoCorriente: "Disponibilidad Fija",
+  Remunerada: "Disponibilidad Remunerada",
+  CriptoLiquido: "Cripto Líquido",
+  CriptoInversion: "Inversiones de Crecimiento",
+  InversionesLargoPlazo: "Inversiones de Crecimiento",
+  PrestamoOtorgado: "Por Cobrar / Por Pagar",
+  PrestamoRecibido: "Por Cobrar / Por Pagar",
+};
+
+/** Orden en que se muestran los bloques en el dashboard. */
+export const ORDEN_BLOQUES: BloqueLiquidez[] = [
+  "Disponibilidad Fija",
+  "Disponibilidad Remunerada",
+  "Cripto Líquido",
+  "Inversiones de Crecimiento",
+  "Por Cobrar / Por Pagar",
+];

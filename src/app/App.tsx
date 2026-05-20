@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PantallaCuentas } from "../modules/cuentas/PantallaCuentas";
+import { PantallaDashboard } from "../modules/dashboard/PantallaDashboard";
 import { PantallaMovimientos } from "../modules/movimientos/PantallaMovimientos";
 import { PantallaCategorias } from "../modules/parametros/PantallaCategorias";
 import "./App.css";
@@ -13,17 +14,8 @@ const NAVEGACION: { id: Vista; etiqueta: string }[] = [
   { id: "categorias", etiqueta: "Categorías" },
 ];
 
-function Placeholder({ titulo }: { titulo: string }) {
-  return (
-    <div className="placeholder">
-      <h2>{titulo}</h2>
-      <p>Este módulo se construye en una fase próxima.</p>
-    </div>
-  );
-}
-
 function App() {
-  const [vista, setVista] = useState<Vista>("movimientos");
+  const [vista, setVista] = useState<Vista>("dashboard");
 
   return (
     <div className="app">
@@ -43,7 +35,7 @@ function App() {
         </nav>
       </aside>
       <main className="contenido">
-        {vista === "dashboard" && <Placeholder titulo="Dashboard" />}
+        {vista === "dashboard" && <PantallaDashboard />}
         {vista === "movimientos" && <PantallaMovimientos />}
         {vista === "cuentas" && <PantallaCuentas />}
         {vista === "categorias" && <PantallaCategorias />}

@@ -1,3 +1,4 @@
+mod comandos;
 mod db;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -8,6 +9,7 @@ pub fn run() {
                 .add_migrations(db::DB_URL, db::migraciones())
                 .build(),
         )
+        .invoke_handler(tauri::generate_handler![comandos::calcular_saldos])
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
