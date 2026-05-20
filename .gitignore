@@ -1,0 +1,17 @@
+# Dependencias
+node_modules
+
+# Build
+dist
+dist-ssr
+
+# Rust / Tauri
+/target
+src-tauri/gen/schemas
+
+# Entorno y editores
+*.local
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json

@@ -1,0 +1,8 @@
+[package]
+name = "nucleo"
+version = "0.1.0"
+edition = "2021"
+description = "Núcleo financiero — dominio puro, sin dependencias de framework"
+
+[dependencies]
+rust_decimal = "1"

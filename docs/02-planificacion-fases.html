@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planificación de Fases · App Finanzas Desktop</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #fafafa;
+    --bg-code: #f4f4f5;
+    --text: #1a1a1a;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #0d7a5f;
+    --accent-soft: #e7f3ef;
+    --caution: #b45309;
+    --caution-soft: #fdf3e8;
+    --mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    background: var(--bg-soft);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 16px;
+  }
+  main {
+    max-width: 940px;
+    margin: 0 auto;
+    background: var(--bg);
+    padding: 56px 64px 96px;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    min-height: 100vh;
+  }
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  h1 {
+    font-size: 32px;
+    line-height: 1.25;
+    margin: 10px 0 12px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .subtitle { font-size: 18px; color: var(--muted); margin: 0; }
+  h2 {
+    font-size: 20px;
+    margin: 52px 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    font-weight: 700;
+  }
+
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 12px;
+    margin: 18px 0;
+  }
+  .stack-item { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .stack-item .layer {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600;
+  }
+  .stack-item .tech { font-weight: 700; font-size: 15px; margin: 3px 0; }
+  .stack-item .tech .mono { font-family: var(--mono); font-size: 13px; }
+  .stack-item .why { font-size: 13px; color: var(--muted); }
+
+  .principles { display: grid; gap: 8px; margin: 16px 0; }
+  .principle {
+    display: flex; gap: 12px; align-items: baseline;
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 10px 16px;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+  }
+  .principle b { white-space: nowrap; }
+
+  .timeline { position: relative; margin: 24px 0 0; padding-left: 44px; }
+  .timeline::before {
+    content: ""; position: absolute;
+    left: 15px; top: 8px; bottom: 40px;
+    width: 2px; background: var(--border);
+  }
+  .phase { position: relative; margin-bottom: 28px; }
+  .phase .dot {
+    position: absolute; left: -44px; top: 0;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--bg); border: 2px solid var(--accent);
+    color: var(--accent); font-family: var(--mono);
+    font-weight: 700; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .phase.is-future .dot { border-color: var(--muted); color: var(--muted); }
+  .phase-card { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .phase-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 22px;
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .phase-head .title { font-size: 17px; font-weight: 700; flex: 1; min-width: 200px; }
+  .badge {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 4px 10px;
+    border-radius: 5px; white-space: nowrap;
+  }
+  .badge.setup   { background: #eef0f3; color: #475569; }
+  .badge.mvp     { background: var(--accent); color: #fff; }
+  .badge.iter    { background: var(--accent-soft); color: var(--accent); }
+  .badge.prod    { background: #eef2ff; color: #4f46e5; }
+  .badge.future  { background: #f4f4f5; color: var(--muted); }
+  .size {
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    padding: 3px 8px; border: 1px solid var(--border);
+    border-radius: 5px; color: var(--muted);
+  }
+  .phase-body { padding: 18px 22px; }
+  .objetivo {
+    font-size: 15px; margin: 0 0 16px;
+    padding-bottom: 14px; border-bottom: 1px dashed var(--border);
+  }
+  .objetivo b { color: var(--accent); }
+  .field-label {
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); font-weight: 700; margin: 14px 0 6px;
+  }
+  ul.scope { margin: 0; padding-left: 0; list-style: none; }
+  ul.scope li { position: relative; padding-left: 24px; margin: 6px 0; font-size: 14px; }
+  ul.scope li::before {
+    content: ""; position: absolute; left: 3px; top: 7px;
+    width: 11px; height: 11px;
+    border: 1.5px solid var(--accent); border-radius: 3px;
+  }
+  .phase.is-future ul.scope li::before { border-color: var(--muted); }
+  .deliver, .done, .risk {
+    font-size: 14px; padding: 10px 14px; border-radius: 6px; margin-top: 6px;
+  }
+  .deliver { background: var(--accent-soft); }
+  .done { background: var(--bg-code); }
+  .risk { background: var(--caution-soft); }
+  .icon { font-weight: 700; margin-right: 6px; }
+  code {
+    font-family: var(--mono); font-size: 13px;
+    background: var(--bg-code); padding: 1px 5px; border-radius: 3px;
+  }
+  footer {
+    margin-top: 56px; padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 13px; color: var(--muted);
+  }
+  @media (max-width: 720px) {
+    main { padding: 36px 22px 64px; }
+    h1 { font-size: 25px; }
+    .timeline { padding-left: 36px; }
+    .timeline::before { left: 11px; }
+    .phase .dot { left: -36px; width: 26px; height: 26px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Hoja de Ruta del Proyecto</div>
+    <h1>Planificación de Fases<br>App Finanzas Desktop</h1>
+    <p class="subtitle">Del MVP usable al producto final — entrega incremental, cada fase deja algo funcionando.</p>
+  </header>
+
+  <h2>Stack Definido</h2>
+  <div class="stack-grid">
+    <div class="stack-item">
+      <div class="layer">Shell de escritorio</div>
+      <div class="tech">Tauri 2</div>
+      <div class="why">Binario nativo liviano (~5-10 MB). Usa el WebView del SO. Multiplataforma a futuro sin costo.</div>
+    </div>
+    <div class="stack-item">
+      <div class="layer">Interfaz de usuario</div>
+      <div class="tech">React + TypeScript</div>
+      <div class="why">Vite como bundler. UI minimalista resuelta con CSS y design tokens, sin librería de componentes pesada.</div>
+    </div>
+    <div class="stack-item">
+      <div class="layer">Núcleo financiero</div>
+      <div class="tech">Rust <span class="mono">· rust_decimal</span></div>
+      <div class="why">Dominio puro: motores de cálculo. Decimal exacto, sin error de redondeo. Cero dependencia de Tauri o React.</div>
+    </div>
+    <div class="stack-item">
+      <div class="layer">Persistencia</div>
+      <div class="tech">SQLite <span class="mono">· tauri-plugin-sql</span></div>
+      <div class="why">Modelo relacional con migraciones. Un archivo <code>.db</code> = privacidad + backup trivial.</div>
+    </div>
+  </div>
+
+  <h2>Principios que Atraviesan Todas las Fases</h2>
+  <div class="principles">
+    <div class="principle"><b>Entrega incremental ·</b> Cada fase deja la aplicación en un estado usable. Nada de "big bang" al final.</div>
+    <div class="principle"><b>Hechos ≠ Reglas ≠ Proyecciones ·</b> Lo que ocurrió, lo que se repite y lo que se estima viven en estructuras distintas. Jamás se mezclan.</div>
+    <div class="principle"><b>Decimal exacto ·</b> El dinero jamás se representa con <code>float</code>. Decimal exacto en todas las capas. No-negociable.</div>
+    <div class="principle"><b>TDD en el núcleo ·</b> Los motores de cálculo se escriben con tests primero. La plata no se testea "después".</div>
+    <div class="principle"><b>Arquitectura hexagonal ·</b> El dominio en Rust no sabe que existen Tauri, SQLite ni React. Adaptadores afuera.</div>
+    <div class="principle"><b>Interfaces desde el día 1 ·</b> Las cotizaciones entran detrás de una interfaz, aunque hoy la carga sea 100% manual.</div>
+  </div>
+
+  <h2>Las Fases</h2>
+  <div class="timeline">
+
+    <!-- FASE 0 -->
+    <div class="phase">
+      <div class="dot">0</div>
+      <div class="phase-card">
+        <div class="phase-head">
+          <span class="title">Cimientos</span>
+          <span class="badge setup">Setup</span>
+          <span class="size">Tamaño · M</span>
+        </div>
+        <div class="phase-body">
+          <p class="objetivo">Dejar el terreno listo para construir <b>sin deuda técnica desde el primer commit</b>.</p>
+          <div class="field-label">Alcance</div>
+          <ul class="scope">
+            <li>Scaffold Tauri 2 + React + TypeScript + Vite.</li>
+            <li>Estructura de carpetas por módulo (Screaming Architecture): <code>cuentas</code>, <code>movimientos</code>, <code>dashboard</code>, <code>parametros</code>, <code>recurrencia</code>, <code>prestamos</code>, <code>proyecciones</code>.</li>
+            <li>SQLite vía <code>tauri-plugin-sql</code> + sistema de migraciones versionadas.</li>
+            <li>Crate Rust del núcleo financiero — dominio puro, aislado de Tauri.</li>
+            <li>Design tokens: paleta de un solo acento, tipografía Inter + monoespaciada, modo claro.</li>
+            <li>Setup de testing: <code>cargo test</code> (Rust) + Vitest + Testing Library (React).</li>
+          </ul>
+          <div class="field-label">Entregable</div>
+          <div class="deliver"><span class="icon">→</span>Aplicación vacía que compila, abre ventana y lee/escribe en SQLite.</div>
+          <div class="field-label">Definición de hecho</div>
+          <div class="done"><span class="icon">✓</span>Tests de ejemplo en verde en ambos lados; migración inicial aplicada y reversible.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FASE 1 -->
+    <div class="phase">
+      <div class="dot">1</div>
+      <div class="phase-card">
+        <div class="phase-head">
+          <span class="title">MVP — Libro de Cuentas</span>
+          <span class="badge mvp">MVP</span>
+          <span class="size">Tamaño · L</span>
+        </div>
+        <div class="phase-body">
+          <p class="objetivo">Poder <b>registrar movimientos y ver saldos</b>. Desde acá, la aplicación ya sirve para usarla todos los días.</p>
+          <div class="field-label">Alcance</div>
+          <ul class="scope">
+            <li>Entidades <code>Moneda</code>, <code>Cuenta</code> y <code>Categoria</code>, con sus CRUD.</li>
+            <li>El enum <code>Cuenta.Tipo</code> se define completo (incluye tipos de préstamo), aunque su UI llegue después.</li>
+            <li>Saldo inicial de cada cuenta registrado como movimiento de <em>Apertura</em>.</li>
+            <li>Movimientos de tipo Ingreso / Gasto sobre una sola cuenta, con categoría.</li>
+            <li>Cálculo del saldo por cuenta como suma de movimientos — en el núcleo Rust, con TDD.</li>
+            <li>Dashboard v1: cuentas agrupadas por Bloque de Liquidez, con su saldo.</li>
+            <li>Bitácora v1: lista de movimientos + alta rápida por teclado (<code>Tab</code> / <code>Enter</code>) + edición y borrado.</li>
+            <li>Validación: bloqueo de monedas incompatibles con la cuenta.</li>
+          </ul>
+          <div class="field-label">Entregable</div>
+          <div class="deliver"><span class="icon">→</span>Un libro de cuentas monomoneda funcional y usable a diario.</div>
+          <div class="field-label">Definición de hecho</div>
+          <div class="done"><span class="icon">✓</span>Cargás cuentas, registrás ingresos/gastos y los saldos cuadran. Tests del cálculo de saldo en verde.</div>
+          <div class="field-label">Riesgo principal</div>
+          <div class="risk"><span class="icon">!</span>La representación del dinero. Se decide ACÁ y para siempre: decimal exacto, nunca <code>float</code>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FASE 2 -->
+    <div class="phase">
+      <div class="dot">2</div>
+      <div class="phase-card">
+        <div class="phase-head">
+          <span class="title">Multidivisa y Canjes</span>
+          <span class="badge iter">Iteración</span>
+          <span class="size">Tamaño · M</span>
+        </div>
+        <div class="phase-body">
+          <p class="objetivo">Operar con <b>varias monedas a la vez</b> y ver el patrimonio en pesos y en dólares, por separado.</p>
+          <div class="field-label">Alcance</div>
+          <ul class="scope">
+            <li>Movimientos de tipo Transferencia / Canje — dos cuentas, con monto de origen y monto de destino propios.</li>
+            <li>Un canje entre monedas distintas captura el tipo de cambio real en la relación entre ambos montos.</li>
+            <li>Entidad <code>Cotizacion</code> + Módulo C: input manual de Dólar Financiero (MEP / Blue) y Dólar Cripto.</li>
+            <li>Calculadora de conversión manual e independiente — no afecta ningún saldo.</li>
+            <li>Dashboard: Métricas Globales — Total en Pesos y Total en Dólares, separados, sin conversión global.</li>
+          </ul>
+          <div class="field-label">Entregable</div>
+          <div class="deliver"><span class="icon">→</span>Registrás canjes entre monedas y ves cuánto tenés en pesos y cuánto en dólares. Las Transferencias ya habilitan registrar un préstamo otorgado de forma cruda.</div>
+          <div class="field-label">Definición de hecho</div>
+          <div class="done"><span class="icon">✓</span>Un canje USD→ARS impacta los dos saldos con sus montos respectivos; los totales por moneda cuadran.</div>
+          <div class="field-label">Riesgo principal</div>
+          <div class="risk"><span class="icon">!</span>La integridad del movimiento de dos lados: ambos montos y ambas cuentas se validan y persisten como una unidad atómica.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FASE 3 -->
+    <div class="phase">
+      <div class="dot">3</div>
+      <div class="phase-card">
+        <div class="phase-head">
+          <span class="title">Reglas Recurrentes</span>
+          <span class="badge iter">Iteración</span>
+          <span class="size">Tamaño · M</span>
+        </div>
+        <div class="phase-body">
+          <p class="objetivo">Dejar de cargar a mano <b>lo que se repite todos los meses</b> — suscripciones y sueldo.</p>
+          <div class="field-label">Alcance</div>
+          <ul class="scope">
+            <li>Entidad <code>ReglaRecurrente</code> — plantillas de Ingreso / Gasto con frecuencia y vigencia.</li>
+            <li>Motor de Recurrencia en Rust (TDD): al llegar la fecha, genera el <code>Movimiento</code> real.</li>
+            <li>Modo <em>Confirmar</em> (por defecto) y <em>Automático</em>, configurable por regla.</li>
+            <li>Vista de "pendientes": movimientos propuestos que se confirman por teclado.</li>
+            <li>Gestión de reglas: alta, pausa, baja y vigencia.</li>
+          </ul>
+          <div class="field-label">Entregable</div>
+          <div class="deliver"><span class="icon">→</span>Las suscripciones y el sueldo se cargan solos, o con una sola tecla.</div>
+          <div class="field-label">Definición de hecho</div>
+          <div class="done"><span class="icon">✓</span>Una regla mensual genera su movimiento en la fecha correcta; el libro mayor sigue conteniendo solo hechos confirmados.</div>
+          <div class="field-label">Riesgo principal</div>
+          <div class="risk"><span class="icon">!</span>Huecos y duplicados: si la aplicación no se abrió por días, el motor debe ser idempotente y ponerse al día sin fallar.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FASE 4 -->
+    <div class="phase">
+      <div class="dot">4</div>
+      <div class="phase-card">
+        <div class="phase-head">
+          <span class="title">Motor de Rendimientos y Préstamos</span>
+          <span class="badge iter">Iteración</span>
+          <span class="size">Tamaño · L</span>
+        </div>
+        <div class="phase-body">
+          <p class="objetivo">Que la aplicación <b>proyecte rendimientos</b> y entienda la <b>plata que te deben</b>.</p>
+          <div class="field-label">Alcance</div>
+          <ul class="scope">
+            <li>Cuentas Remuneradas con campo TNA variable, de carga manual.</li>
+            <li>Motor de Interés Compuesto Diario en Rust (TDD): el devengado se calcula al vuelo, sin generar movimientos diarios.</li>
+            <li>Proyección a fin de mes — fórmula <code>POTENCIA</code> con Días Restantes dinámicos.</li>
+            <li>Entidad <code>Prestamo</code> + tipos de cuenta Préstamo Otorgado / Recibido.</li>
+            <li>Préstamos con interés: reúsan el mismo motor de interés compuesto. Cero código duplicado.</li>
+            <li>Cronograma de cuota fija (ej. 300k/mes) se apoya en las Reglas Recurrentes de la Fase 3; los pagos esporádicos son movimientos sueltos.</li>
+            <li>Dashboard: bloque "Por Cobrar / Por Pagar" + métrica Ganancia Diaria Proyectada Total.</li>
+          </ul>
+          <div class="field-label">Entregable</div>
+          <div class="deliver"><span class="icon">→</span>Ves cuánto rinde tu plata y cuánto te deben, separado de lo líquido.</div>
+          <div class="field-label">Definición de hecho</div>
+          <div class="done"><span class="icon">✓</span>La proyección de fin de mes coincide con el cálculo manual; el saldo de un préstamo baja con cada cuota cobrada.</div>
+          <div class="field-label">Riesgo principal</div>
+          <div class="risk"><span class="icon">!</span>La TNA es variable en el tiempo: definir si el devengado al vuelo usa la tasa vigente o respeta los cambios históricos de tasa.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FASE 5 -->
+    <div class="phase">
+      <div class="dot">5</div>
+      <div class="phase-card">
+        <div class="phase-head">
+          <span class="title">Simulador de Proyecciones</span>
+          <span class="badge iter">Iteración</span>
+          <span class="size">Tamaño · L</span>
+        </div>
+        <div class="phase-body">
+          <p class="objetivo">Responder la pregunta: <b>«¿cuánto patrimonio voy a tener en X meses?»</b></p>
+          <div class="field-label">Alcance</div>
+          <ul class="scope">
+            <li>Motor de Proyección Patrimonial en Rust (TDD): simulación pura, no toca el libro mayor.</li>
+            <li>Consume: saldos actuales + reglas recurrentes + interés de remuneradas + crecimiento estimado de inversiones + dividendos + repagos de préstamos.</li>
+            <li>Parámetros manuales por cuenta de inversión: retorno anual estimado % y rendimiento por dividendos %.</li>
+            <li>Inflación anual estimada — parámetro manual con valor sugerido — para proyectar poder adquisitivo, no solo valor nominal.</li>
+            <li>Salida: línea de tiempo mes a mes del patrimonio proyectado, con pesos y dólares separados.</li>
+            <li>Horizonte seleccionable: 3, 6, 12, 24 meses.</li>
+          </ul>
+          <div class="field-label">Entregable</div>
+          <div class="deliver"><span class="icon">→</span>Una proyección navegable de tu patrimonio futuro.</div>
+          <div class="field-label">Definición de hecho</div>
+          <div class="done"><span class="icon">✓</span>La proyección a 1 mes coincide con lo que ya calculan los motores existentes; cambiar un parámetro recalcula la curva.</div>
+          <div class="field-label">Riesgo principal</div>
+          <div class="risk"><span class="icon">!</span>El scope se dispara fácil. Empezar simple: proyección lineal, parámetros manuales. Nada de modelos financieros sofisticados.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FASE 6 -->
+    <div class="phase">
+      <div class="dot">6</div>
+      <div class="phase-card">
+        <div class="phase-head">
+          <span class="title">Producto — Pulido y UX</span>
+          <span class="badge prod">Producto</span>
+          <span class="size">Tamaño · M</span>
+        </div>
+        <div class="phase-body">
+          <p class="objetivo">Pasar de "funciona" a <b>"es un placer usarlo todos los días"</b>.</p>
+          <div class="field-label">Alcance</div>
+          <ul class="scope">
+            <li>Menú lateral colapsable + atajos de teclado <code>F1</code> / <code>F2</code> / <code>F3</code>.</li>
+            <li>Categorías completas, filtros y búsqueda en la bitácora.</li>
+            <li>Edición y borrado de movimientos con recálculo correcto de saldos.</li>
+            <li>Estados vacíos, manejo de errores, navegación 100% por teclado pulida.</li>
+            <li>Pulido visual final, fiel al minimalismo del documento.</li>
+            <li>Backups automáticos del archivo <code>.db</code> + exportación.</li>
+          </ul>
+          <div class="field-label">Entregable</div>
+          <div class="deliver"><span class="icon">→</span>Producto final, listo para uso diario sin fricción.</div>
+          <div class="field-label">Definición de hecho</div>
+          <div class="done"><span class="icon">✓</span>Recorrés toda la aplicación sin tocar el mouse; un backup se genera solo.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FASE 7 -->
+    <div class="phase is-future">
+      <div class="dot">7</div>
+      <div class="phase-card">
+        <div class="phase-head">
+          <span class="title">Futuro — Post-lanzamiento</span>
+          <span class="badge future">Futuro</span>
+          <span class="size">Tamaño · variable</span>
+        </div>
+        <div class="phase-body">
+          <p class="objetivo">Lo que la arquitectura <b>ya dejó preparado</b>, pero no es necesario para lanzar.</p>
+          <div class="field-label">Alcance</div>
+          <ul class="scope">
+            <li>Automatización de cotizaciones — scraping / API — detrás de las interfaces ya diseñadas.</li>
+            <li>Valuación de mercado real para CEDEARs y ETFs (precio en vivo de SPY).</li>
+            <li>Escenarios de proyección guardables y comparables entre sí.</li>
+            <li>Reportes históricos y gráficos de evolución patrimonial.</li>
+            <li>Build multiplataforma — macOS y Linux.</li>
+          </ul>
+          <div class="field-label">Entregable</div>
+          <div class="deliver"><span class="icon">→</span>Incremental, según necesidad real de uso.</div>
+          <div class="field-label">Nota</div>
+          <div class="done"><span class="icon">✓</span>No comprometer nada de esto hasta tener las fases 1 a 6 sólidas y estables.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    Hoja de ruta para la App de Finanzas Desktop · Stack: Tauri 2 + React/TypeScript + núcleo Rust + SQLite ·
+    Los tamaños (S/M/L) son relativos entre fases, no estimaciones de tiempo en calendario.
+  </footer>
+</main>
+</body>
+</html>
