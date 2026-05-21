@@ -7,7 +7,10 @@ use nucleo::{
     TramoTasa,
 };
 use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
+use tauri::{AppHandle, Manager};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -321,4 +324,102 @@ pub fn proyectar(
         patrimonio_usd: punto.patrimonio_usd.to_string(),
     })
     .collect()
+}
+
+/// Cantidad de respaldos automáticos que se conservan; los más viejos se
+/// descartan.
+const RESPALDOS_A_CONSERVAR: usize = 14;
+
+/// Ubica el archivo SQLite buscándolo en los directorios donde Tauri lo
+/// puede haber dejado.
+fn ruta_base_de_datos(app: &AppHandle) -> Result<PathBuf, String> {
+    let candidatos = [app.path().app_config_dir(), app.path().app_data_dir()];
+    for directorio in candidatos.into_iter().flatten() {
+        let archivo = directorio.join("finanzas.db");
+        if archivo.exists() {
+            return Ok(archivo);
+        }
+    }
+    Err("No se encontró el archivo de base de datos.".to_string())
+}
+
+/// Carpeta de respaldos, al lado del archivo de base de datos.
+fn carpeta_respaldos(app: &AppHandle) -> Result<PathBuf, String> {
+    let base = ruta_base_de_datos(app)?;
+    let carpeta = base
+        .parent()
+        .ok_or("Ruta de base de datos inválida.")?
+        .join("backups");
+    Ok(carpeta)
+}
+
+fn es_archivo_de_respaldo(ruta: &Path) -> bool {
+    ruta.file_name()
+        .and_then(|nombre| nombre.to_str())
+        .map(|nombre| nombre.starts_with("finanzas-") && nombre.ends_with(".db"))
+        .unwrap_or(false)
+}
+
+/// Conserva los respaldos más recientes y descarta los más viejos.
+fn rotar_respaldos(carpeta: &Path) -> Result<(), String> {
+    let mut respaldos: Vec<PathBuf> = fs::read_dir(carpeta)
+        .map_err(|e| e.to_string())?
+        .filter_map(|entrada| entrada.ok().map(|e| e.path()))
+        .filter(|ruta| es_archivo_de_respaldo(ruta))
+        .collect();
+    respaldos.sort();
+    while respaldos.len() > RESPALDOS_A_CONSERVAR {
+        let _ = fs::remove_file(respaldos.remove(0));
+    }
+    Ok(())
+}
+
+/// Copia la base de datos a la carpeta de respaldos con la fecha del día.
+/// Es idempotente: si ya existe el respaldo de hoy no lo duplica. Después
+/// rota los respaldos viejos.
+#[tauri::command]
+pub fn crear_respaldo(app: AppHandle, fecha: String) -> Result<String, String> {
+    let origen = ruta_base_de_datos(&app)?;
+    let carpeta = carpeta_respaldos(&app)?;
+    fs::create_dir_all(&carpeta).map_err(|e| e.to_string())?;
+
+    let destino = carpeta.join(format!("finanzas-{fecha}.db"));
+    if !destino.exists() {
+        fs::copy(&origen, &destino).map_err(|e| e.to_string())?;
+    }
+    rotar_respaldos(&carpeta)?;
+
+    Ok(destino.to_string_lossy().into_owned())
+}
+
+/// Exporta una copia de la base de datos a la carpeta de descargas.
+#[tauri::command]
+pub fn exportar_respaldo(app: AppHandle, marca: String) -> Result<String, String> {
+    let origen = ruta_base_de_datos(&app)?;
+    let descargas = app
+        .path()
+        .download_dir()
+        .map_err(|_| "No se encontró la carpeta de descargas.".to_string())?;
+    let destino = descargas.join(format!("finanzas-{marca}.db"));
+    fs::copy(&origen, &destino).map_err(|e| e.to_string())?;
+
+    Ok(destino.to_string_lossy().into_owned())
+}
+
+/// Lista los nombres de los respaldos, del más reciente al más antiguo.
+#[tauri::command]
+pub fn listar_respaldos(app: AppHandle) -> Result<Vec<String>, String> {
+    let carpeta = carpeta_respaldos(&app)?;
+    if !carpeta.exists() {
+        return Ok(Vec::new());
+    }
+    let mut nombres: Vec<String> = fs::read_dir(&carpeta)
+        .map_err(|e| e.to_string())?
+        .filter_map(|entrada| entrada.ok())
+        .filter(|entrada| es_archivo_de_respaldo(&entrada.path()))
+        .filter_map(|entrada| entrada.file_name().into_string().ok())
+        .collect();
+    nombres.sort();
+    nombres.reverse();
+    Ok(nombres)
 }

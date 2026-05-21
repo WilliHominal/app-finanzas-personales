@@ -10,6 +10,8 @@ import { PantallaRecurrencia } from "../modules/recurrencia/PantallaRecurrencia"
 import { aplicarReglasAutomaticas } from "../modules/recurrencia/recurrencia.servicio";
 import { PantallaRendimientos } from "../modules/rendimientos/PantallaRendimientos";
 import { acreditarInteresPendiente } from "../modules/rendimientos/rendimientos.servicio";
+import { PantallaRespaldo } from "../modules/respaldo/PantallaRespaldo";
+import { crearRespaldoAutomatico } from "../modules/respaldo/respaldo.servicio";
 import "./App.css";
 
 type Vista =
@@ -20,7 +22,8 @@ type Vista =
   | "recurrencia"
   | "rendimientos"
   | "prestamos"
-  | "proyeccion";
+  | "proyeccion"
+  | "respaldo";
 
 const NAVEGACION: { id: Vista; etiqueta: string }[] = [
   { id: "dashboard", etiqueta: "Dashboard" },
@@ -31,6 +34,7 @@ const NAVEGACION: { id: Vista; etiqueta: string }[] = [
   { id: "proyeccion", etiqueta: "Proyección" },
   { id: "cuentas", etiqueta: "Cuentas" },
   { id: "categorias", etiqueta: "Categorías" },
+  { id: "respaldo", etiqueta: "Respaldo" },
 ];
 
 function App() {
@@ -39,6 +43,7 @@ function App() {
 
   useEffect(() => {
     async function iniciar() {
+      await crearRespaldoAutomatico();
       await sincronizarCotizaciones();
       await aplicarReglasAutomaticas();
       await acreditarInteresPendiente();
@@ -76,6 +81,7 @@ function App() {
         {vista === "proyeccion" && <PantallaProyeccion />}
         {vista === "cuentas" && <PantallaCuentas />}
         {vista === "categorias" && <PantallaCategorias />}
+        {vista === "respaldo" && <PantallaRespaldo />}
       </main>
     </div>
   );

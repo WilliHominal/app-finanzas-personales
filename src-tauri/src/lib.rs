@@ -12,7 +12,10 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             comandos::resumen_patrimonial,
             comandos::calcular_rendimientos,
-            comandos::proyectar
+            comandos::proyectar,
+            comandos::crear_respaldo,
+            comandos::exportar_respaldo,
+            comandos::listar_respaldos
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {

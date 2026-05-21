@@ -15,6 +15,10 @@ vi.mock("../modules/rendimientos/rendimientos.servicio", () => ({
   obtenerRendimientos: vi.fn().mockResolvedValue([]),
 }));
 
+vi.mock("../modules/respaldo/respaldo.servicio", () => ({
+  crearRespaldoAutomatico: vi.fn().mockResolvedValue(undefined),
+}));
+
 describe("App", () => {
   it("muestra la marca de la aplicación", async () => {
     render(<App />);
