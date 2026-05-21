@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import { formatearMonto } from "../../shared/formato";
 import { listarMonedas, type Moneda } from "../../shared/monedas";
 import { listarCuentas } from "../cuentas/cuentas.repositorio";
@@ -28,6 +28,7 @@ export function PantallaPrestamos() {
   const [cuentas, setCuentas] = useState<Cuenta[]>([]);
   const [monedas, setMonedas] = useState<Moneda[]>([]);
   const [accionActiva, setAccionActiva] = useState<AccionActiva | null>(null);
+  const [expandidoId, setExpandidoId] = useState<number | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
@@ -58,9 +59,14 @@ export function PantallaPrestamos() {
     cargar();
   }
 
+  function alternarDetalle(id: number) {
+    setExpandidoId((actual) => (actual === id ? null : id));
+  }
+
   async function borrar(prestamo: PrestamoVista) {
     await eliminarPrestamo(prestamo.id, prestamo.cuentaId);
     if (accionActiva?.prestamo.id === prestamo.id) setAccionActiva(null);
+    if (expandidoId === prestamo.id) setExpandidoId(null);
     cargar();
   }
 
@@ -110,54 +116,110 @@ export function PantallaPrestamos() {
             </tr>
           </thead>
           <tbody>
-            {prestamos.map((prestamo) => (
-              <tr key={prestamo.id}>
-                <td>{prestamo.contraparte}</td>
-                <td>{ETIQUETA_TIPO_PRESTAMO[prestamo.tipo]}</td>
-                <td className="monto">{formatearMonto(prestamo.capital)}</td>
-                <td
-                  className={
-                    prestamo.tipo === "Otorgado"
-                      ? "monto ingreso"
-                      : "monto gasto"
-                  }
-                >
-                  {formatearMonto(pendienteDe(prestamo))}
-                </td>
-                <td>{prestamo.fecha}</td>
-                <td>
-                  <div className="acciones">
-                    <button
-                      type="button"
-                      className="boton-tenue"
-                      onClick={() =>
-                        setAccionActiva({ prestamo, accion: "pago" })
+            {prestamos.map((prestamo) => {
+              const expandido = expandidoId === prestamo.id;
+              return (
+                <Fragment key={prestamo.id}>
+                  <tr>
+                    <td>
+                      <button
+                        type="button"
+                        className="celda-toggle"
+                        onClick={() => alternarDetalle(prestamo.id)}
+                        aria-expanded={expandido}
+                      >
+                        <span className="celda-toggle-flecha">
+                          {expandido ? "▾" : "▸"}
+                        </span>
+                        {prestamo.contraparte}
+                      </button>
+                    </td>
+                    <td>{ETIQUETA_TIPO_PRESTAMO[prestamo.tipo]}</td>
+                    <td className="monto">
+                      {formatearMonto(prestamo.capital)}
+                    </td>
+                    <td
+                      className={
+                        prestamo.tipo === "Otorgado"
+                          ? "monto ingreso"
+                          : "monto gasto"
                       }
                     >
-                      {prestamo.tipo === "Otorgado"
-                        ? "Registrar cobro"
-                        : "Registrar pago"}
-                    </button>
-                    <button
-                      type="button"
-                      className="boton-tenue"
-                      onClick={() =>
-                        setAccionActiva({ prestamo, accion: "ampliacion" })
-                      }
-                    >
-                      Ampliar
-                    </button>
-                    <button
-                      type="button"
-                      className="boton-tenue"
-                      onClick={() => borrar(prestamo)}
-                    >
-                      Borrar
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      {formatearMonto(pendienteDe(prestamo))}
+                    </td>
+                    <td>{prestamo.fecha}</td>
+                    <td>
+                      <div className="acciones">
+                        <button
+                          type="button"
+                          className="boton-tenue"
+                          onClick={() =>
+                            setAccionActiva({ prestamo, accion: "pago" })
+                          }
+                        >
+                          {prestamo.tipo === "Otorgado"
+                            ? "Registrar cobro"
+                            : "Registrar pago"}
+                        </button>
+                        <button
+                          type="button"
+                          className="boton-tenue"
+                          onClick={() =>
+                            setAccionActiva({ prestamo, accion: "ampliacion" })
+                          }
+                        >
+                          Ampliar
+                        </button>
+                        <button
+                          type="button"
+                          className="boton-tenue"
+                          onClick={() => borrar(prestamo)}
+                        >
+                          Borrar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  {expandido && (
+                    <tr className="fila-detalle">
+                      <td colSpan={6}>
+                        {prestamo.movimientos.length === 0 ? (
+                          <p className="detalle-vacio">
+                            Todavía no hay movimientos en este préstamo.
+                          </p>
+                        ) : (
+                          <ul className="historial">
+                            {prestamo.movimientos.map((mov) => {
+                              const achica = Number(mov.monto) < 0;
+                              return (
+                                <li key={mov.id} className="historial-fila">
+                                  <span className="historial-fecha">
+                                    {mov.fecha}
+                                  </span>
+                                  <span className="historial-desc">
+                                    {mov.descripcion}
+                                  </span>
+                                  <span
+                                    className={
+                                      achica ? "monto ingreso" : "monto gasto"
+                                    }
+                                  >
+                                    {achica ? "−" : "+"}
+                                    {formatearMonto(
+                                      Math.abs(Number(mov.monto)).toFixed(2),
+                                    )}
+                                  </span>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
+            })}
           </tbody>
         </table>
       )}

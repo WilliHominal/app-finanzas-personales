@@ -214,3 +214,68 @@
 .formulario .nota {
   width: 100%;
 }
+
+/* Celda que despliega el detalle de una fila */
+.celda-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.celda-toggle:hover {
+  color: var(--accent);
+}
+
+.celda-toggle-flecha {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* Fila de detalle desplegable */
+.fila-detalle td {
+  background: var(--bg-soft);
+  padding: 4px 16px 10px;
+}
+
+.historial {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.historial-fila {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 7px 2px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.historial-fila:last-child {
+  border-bottom: 0;
+}
+
+.historial-fecha {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.historial-desc {
+  flex: 1;
+}
+
+.detalle-vacio {
+  margin: 0;
+  padding: 6px 2px;
+  font-size: 13px;
+  color: var(--muted);
+}

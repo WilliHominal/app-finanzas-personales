@@ -55,7 +55,7 @@ export type BloqueLiquidez =
   | "Disponibilidad Remunerada"
   | "Cripto Líquido"
   | "Inversiones de Crecimiento"
-  | "Por Cobrar / Por Pagar";
+  | "Préstamos";
 
 export const BLOQUE_DE_TIPO: Record<TipoCuenta, BloqueLiquidez> = {
   Efectivo: "Disponibilidad Fija",
@@ -64,8 +64,8 @@ export const BLOQUE_DE_TIPO: Record<TipoCuenta, BloqueLiquidez> = {
   CriptoLiquido: "Cripto Líquido",
   CriptoInversion: "Inversiones de Crecimiento",
   InversionesLargoPlazo: "Inversiones de Crecimiento",
-  PrestamoOtorgado: "Por Cobrar / Por Pagar",
-  PrestamoRecibido: "Por Cobrar / Por Pagar",
+  PrestamoOtorgado: "Préstamos",
+  PrestamoRecibido: "Préstamos",
 };
 
 /** Orden en que se muestran los bloques en el dashboard. */
@@ -74,5 +74,5 @@ export const ORDEN_BLOQUES: BloqueLiquidez[] = [
   "Disponibilidad Remunerada",
   "Cripto Líquido",
   "Inversiones de Crecimiento",
-  "Por Cobrar / Por Pagar",
+  "Préstamos",
 ];

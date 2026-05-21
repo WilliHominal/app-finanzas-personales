@@ -6,6 +6,7 @@ import {
   crearMovimiento,
   listarMovimientos,
 } from "../movimientos/movimientos.repositorio";
+import type { Movimiento } from "../movimientos/movimientos.tipos";
 import {
   crearCuentaPrestamo,
   insertarPrestamo,
@@ -13,8 +14,16 @@ import {
 } from "./prestamos.repositorio";
 import type { NuevoPrestamo, Prestamo, TipoPrestamo } from "./prestamos.tipos";
 
+export interface MovimientoPrestamo {
+  id: number;
+  fecha: string;
+  descripcion: string;
+  monto: string;
+}
+
 export interface PrestamoVista extends Prestamo {
   saldo: string;
+  movimientos: MovimientoPrestamo[];
 }
 
 const TIPO_CUENTA: Record<TipoPrestamo, TipoCuenta> = {
@@ -72,7 +81,40 @@ export async function crearPrestamo(datos: NuevoPrestamo): Promise<void> {
   });
 }
 
-/** Lista los préstamos con el saldo pendiente de cada uno. */
+/**
+ * Reconstruye el historial de un préstamo: cada movimiento que toca su
+ * cuenta, ordenado del más antiguo al más reciente. El monto va firmado
+ * según cómo afecta al saldo pendiente — positivo si lo agranda (el
+ * préstamo inicial o una ampliación), negativo si lo achica (un cobro o
+ * un pago).
+ */
+function historialDe(
+  prestamo: Prestamo,
+  movimientos: Movimiento[],
+): MovimientoPrestamo[] {
+  const esOtorgado = prestamo.tipo === "Otorgado";
+  return movimientos
+    .filter(
+      (mov) =>
+        mov.cuentaOrigenId === prestamo.cuentaId ||
+        mov.cuentaDestinoId === prestamo.cuentaId,
+    )
+    .map((mov) => {
+      const entra = mov.cuentaDestinoId === prestamo.cuentaId;
+      const monto = Number((entra ? mov.montoDestino : mov.montoOrigen) ?? 0);
+      const impactoEnSaldo = entra ? monto : -monto;
+      const impactoEnPendiente = esOtorgado ? impactoEnSaldo : -impactoEnSaldo;
+      return {
+        id: mov.id,
+        fecha: mov.fecha,
+        descripcion: mov.descripcion,
+        monto: impactoEnPendiente.toFixed(2),
+      };
+    })
+    .reverse();
+}
+
+/** Lista los préstamos con el saldo pendiente y el historial de cada uno. */
 export async function obtenerPrestamos(): Promise<PrestamoVista[]> {
   const [prestamos, cuentas, monedas, movimientos] = await Promise.all([
     listarPrestamos(),
@@ -100,6 +142,7 @@ export async function obtenerPrestamos(): Promise<PrestamoVista[]> {
   return prestamos.map((prestamo) => ({
     ...prestamo,
     saldo: saldoDe.get(prestamo.cuentaId) ?? "0",
+    movimientos: historialDe(prestamo, movimientos),
   }));
 }
 
