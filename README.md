@@ -11,6 +11,7 @@ Toda la información vive en un único archivo SQLite local — sin nube, sin cu
 - **Reglas recurrentes** — suscripciones, sueldos y pagos anuales que se registran solos (modo Automático) o quedan como pendientes de confirmar.
 - **Rendimientos** — cuentas remuneradas con TNA por tramos; el interés compuesto se acredita solo, día a día.
 - **Préstamos** — otorgados y recibidos, con sus cobros, pagos y ampliaciones, y el historial de cada uno.
+- **Tenencias bursátiles** — CEDEARs y ETFs cargados por cantidad de unidades, valuados a precio de mercado (data912.com).
 - **Dashboard** — totales por moneda y patrimonio consolidado, con el saldo de cada cuenta.
 - **Proyecciones** — simula el patrimonio a 3, 6, 12 o 24 meses, en pesos nominales y de hoy.
 - **Cotizaciones automáticas** — dólar MEP (dolarapi.com) y cripto Fiwind (criptoya.com), con cache offline.
