@@ -70,5 +70,11 @@ pub fn migraciones() -> Vec<Migration> {
             sql: include_str!("../migrations/0010_parametro.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 11,
+            description: "instrumento_en_moneda",
+            sql: include_str!("../migrations/0011_instrumento.sql"),
+            kind: MigrationKind::Up,
+        },
     ]
 }

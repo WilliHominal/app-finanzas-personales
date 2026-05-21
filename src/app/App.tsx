@@ -3,6 +3,7 @@ import { PantallaCuentas } from "../modules/cuentas/PantallaCuentas";
 import { PantallaDashboard } from "../modules/dashboard/PantallaDashboard";
 import { PantallaMovimientos } from "../modules/movimientos/PantallaMovimientos";
 import { PantallaCategorias } from "../modules/parametros/PantallaCategorias";
+import { sincronizarPrecios } from "../modules/instrumentos/instrumentos.servicio";
 import { sincronizarCotizaciones } from "../modules/parametros/cotizaciones.servicio";
 import { PantallaPrestamos } from "../modules/prestamos/PantallaPrestamos";
 import { PantallaProyeccion } from "../modules/proyeccion/PantallaProyeccion";
@@ -46,6 +47,7 @@ function App() {
     async function iniciar() {
       await crearRespaldoAutomatico();
       await sincronizarCotizaciones();
+      await sincronizarPrecios();
       await aplicarReglasAutomaticas();
       await acreditarInteresPendiente();
     }

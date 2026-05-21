@@ -19,6 +19,10 @@ vi.mock("../modules/respaldo/respaldo.servicio", () => ({
   crearRespaldoAutomatico: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("../modules/instrumentos/instrumentos.servicio", () => ({
+  sincronizarPrecios: vi.fn().mockResolvedValue(true),
+}));
+
 describe("App", () => {
   it("muestra la marca de la aplicación", async () => {
     render(<App />);
