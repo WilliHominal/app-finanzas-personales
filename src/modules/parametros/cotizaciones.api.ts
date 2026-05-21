@@ -1,5 +1,5 @@
 const ENDPOINT_MEP = "https://dolarapi.com/v1/dolares/bolsa";
-const ENDPOINT_FIWIND = "https://criptoya.com/api/fiwind/usdt/ars";
+const ENDPOINT_FIWIND = "https://criptoya.com/api/fiwind/usdc/ars";
 
 interface RespuestaDolarApi {
   venta: number;
