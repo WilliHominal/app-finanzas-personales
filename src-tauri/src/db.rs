@@ -64,5 +64,11 @@ pub fn migraciones() -> Vec<Migration> {
             sql: include_str!("../migrations/0009_regla_mes.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 10,
+            description: "crear_parametro",
+            sql: include_str!("../migrations/0010_parametro.sql"),
+            kind: MigrationKind::Up,
+        },
     ]
 }

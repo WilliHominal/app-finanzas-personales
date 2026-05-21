@@ -5,6 +5,7 @@ import { PantallaMovimientos } from "../modules/movimientos/PantallaMovimientos"
 import { PantallaCategorias } from "../modules/parametros/PantallaCategorias";
 import { sincronizarCotizaciones } from "../modules/parametros/cotizaciones.servicio";
 import { PantallaPrestamos } from "../modules/prestamos/PantallaPrestamos";
+import { PantallaProyeccion } from "../modules/proyeccion/PantallaProyeccion";
 import { PantallaRecurrencia } from "../modules/recurrencia/PantallaRecurrencia";
 import { aplicarReglasAutomaticas } from "../modules/recurrencia/recurrencia.servicio";
 import { PantallaRendimientos } from "../modules/rendimientos/PantallaRendimientos";
@@ -18,7 +19,8 @@ type Vista =
   | "categorias"
   | "recurrencia"
   | "rendimientos"
-  | "prestamos";
+  | "prestamos"
+  | "proyeccion";
 
 const NAVEGACION: { id: Vista; etiqueta: string }[] = [
   { id: "dashboard", etiqueta: "Dashboard" },
@@ -26,6 +28,7 @@ const NAVEGACION: { id: Vista; etiqueta: string }[] = [
   { id: "recurrencia", etiqueta: "Recurrentes" },
   { id: "rendimientos", etiqueta: "Rendimientos" },
   { id: "prestamos", etiqueta: "Préstamos" },
+  { id: "proyeccion", etiqueta: "Proyección" },
   { id: "cuentas", etiqueta: "Cuentas" },
   { id: "categorias", etiqueta: "Categorías" },
 ];
@@ -70,6 +73,7 @@ function App() {
         {vista === "recurrencia" && <PantallaRecurrencia />}
         {vista === "rendimientos" && <PantallaRendimientos />}
         {vista === "prestamos" && <PantallaPrestamos />}
+        {vista === "proyeccion" && <PantallaProyeccion />}
         {vista === "cuentas" && <PantallaCuentas />}
         {vista === "categorias" && <PantallaCategorias />}
       </main>

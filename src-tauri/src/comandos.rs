@@ -2,8 +2,9 @@
 //! petición, delegan el cálculo en el núcleo y devuelven el resultado.
 
 use nucleo::{
-    ganancia_diaria, proyeccion_fin_de_mes, saldo_de_cuenta, serie_acreditacion, Decimal,
-    Movimiento, TipoMovimiento, TramoTasa,
+    ganancia_diaria, proyeccion_fin_de_mes, saldo_de_cuenta, serie_acreditacion, CuentaRemunerada,
+    Decimal, EstadoInicial, FlujoRecurrente, Frecuencia, Movimiento, Supuestos, TipoMovimiento,
+    TramoTasa,
 };
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -208,4 +209,116 @@ pub fn calcular_rendimientos(
             }
         })
         .collect()
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EstadoEntrada {
+    pesos: String,
+    dolares: String,
+    inversiones: String,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RemuneradaEntrada {
+    saldo: String,
+    tna: String,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FlujoEntrada {
+    monto: String,
+    es_ingreso: bool,
+    en_dolares: bool,
+    frecuencia: String,
+    mes_aplicacion: Option<u32>,
+    vigencia_desde: String,
+    vigencia_hasta: Option<String>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SupuestosEntrada {
+    inflacion_anual: String,
+    rendimiento_inversiones_anual: String,
+    dolar_inicial: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PuntoSalida {
+    mes: u32,
+    patrimonio_nominal: String,
+    patrimonio_real: String,
+}
+
+/// Proyecta el patrimonio mes a mes. Arma el estado, las reglas y los
+/// supuestos, y delega el cálculo en el motor de proyección del núcleo.
+/// Las tasas llegan como porcentaje y se pasan al núcleo como fracción.
+#[tauri::command]
+pub fn proyectar(
+    estado: EstadoEntrada,
+    remuneradas: Vec<RemuneradaEntrada>,
+    flujos: Vec<FlujoEntrada>,
+    supuestos: SupuestosEntrada,
+    horizonte: u32,
+    hoy: String,
+) -> Vec<PuntoSalida> {
+    let cien = Decimal::from(100);
+
+    let estado_dominio = EstadoInicial {
+        pesos: decimal_o_cero(&estado.pesos),
+        dolares: decimal_o_cero(&estado.dolares),
+        inversiones: decimal_o_cero(&estado.inversiones),
+    };
+
+    let remuneradas_dominio: Vec<CuentaRemunerada> = remuneradas
+        .iter()
+        .map(|cuenta| CuentaRemunerada {
+            saldo: decimal_o_cero(&cuenta.saldo),
+            tna: decimal_o_cero(&cuenta.tna) / cien,
+        })
+        .collect();
+
+    let flujos_dominio: Vec<FlujoRecurrente> = flujos
+        .into_iter()
+        .map(|flujo| FlujoRecurrente {
+            monto: decimal_o_cero(&flujo.monto),
+            es_ingreso: flujo.es_ingreso,
+            en_dolares: flujo.en_dolares,
+            frecuencia: if flujo.frecuencia == "Anual" {
+                Frecuencia::Anual
+            } else {
+                Frecuencia::Mensual
+            },
+            mes_aplicacion: flujo.mes_aplicacion,
+            vigencia_desde: flujo.vigencia_desde,
+            vigencia_hasta: flujo.vigencia_hasta,
+        })
+        .collect();
+
+    let supuestos_dominio = Supuestos {
+        inflacion_anual: decimal_o_cero(&supuestos.inflacion_anual) / cien,
+        rendimiento_inversiones_anual: decimal_o_cero(&supuestos.rendimiento_inversiones_anual)
+            / cien,
+        dolar_inicial: decimal_o_cero(&supuestos.dolar_inicial),
+    };
+
+    nucleo::proyectar(
+        estado_dominio,
+        &remuneradas_dominio,
+        &flujos_dominio,
+        supuestos_dominio,
+        horizonte,
+        &hoy,
+    )
+    .into_iter()
+    .map(|punto| PuntoSalida {
+        mes: punto.mes,
+        patrimonio_nominal: punto.patrimonio_nominal.to_string(),
+        patrimonio_real: punto.patrimonio_real.to_string(),
+    })
+    .collect()
 }

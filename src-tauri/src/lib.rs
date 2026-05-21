@@ -11,7 +11,8 @@ pub fn run() {
         )
         .invoke_handler(tauri::generate_handler![
             comandos::resumen_patrimonial,
-            comandos::calcular_rendimientos
+            comandos::calcular_rendimientos,
+            comandos::proyectar
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {
