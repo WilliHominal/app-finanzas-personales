@@ -1,15 +1,18 @@
 import { useState, type FormEvent } from "react";
 import { crearCategoria } from "./categorias.repositorio";
 import { TIPOS_CATEGORIA, type TipoCategoria } from "./categorias.tipos";
+import { SelectorColor } from "./SelectorColor";
 
 interface Props {
   onCategoriaCreada: () => void;
 }
 
+const COLOR_INICIAL = "#88a892";
+
 export function FormularioCategoria({ onCategoriaCreada }: Props) {
   const [nombre, setNombre] = useState("");
   const [tipo, setTipo] = useState<TipoCategoria>("Gasto");
-  const [color, setColor] = useState("#0d7a5f");
+  const [color, setColor] = useState(COLOR_INICIAL);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
 
@@ -25,6 +28,7 @@ export function FormularioCategoria({ onCategoriaCreada }: Props) {
       await crearCategoria({ nombre: nombre.trim(), tipo, color });
       setNombre("");
       setTipo("Gasto");
+      setColor(COLOR_INICIAL);
       onCategoriaCreada();
     } catch (e) {
       setError(`No se pudo crear la categoría: ${e}`);
@@ -59,13 +63,8 @@ export function FormularioCategoria({ onCategoriaCreada }: Props) {
         </select>
       </div>
       <div className="campo">
-        <label htmlFor="categoria-color">Color</label>
-        <input
-          id="categoria-color"
-          type="color"
-          value={color}
-          onChange={(e) => setColor(e.target.value)}
-        />
+        <span className="rotulo">Color</span>
+        <SelectorColor valor={color} onCambio={setColor} />
       </div>
       <button type="submit" className="boton-primario" disabled={guardando}>
         {guardando ? "Guardando…" : "Crear categoría"}

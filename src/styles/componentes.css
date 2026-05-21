@@ -36,7 +36,8 @@
   gap: 5px;
 }
 
-.campo label {
+.campo label,
+.campo .rotulo {
   font-size: 12px;
   font-weight: 600;
   color: var(--muted);
@@ -278,4 +279,63 @@
   padding: 6px 2px;
   font-size: 13px;
   color: var(--muted);
+}
+
+/* Selector de color con paleta */
+.selector-color {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  align-items: center;
+  padding-top: 2px;
+}
+
+.muestra-color {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
+  transition: transform 0.1s ease;
+}
+
+.muestra-color:hover {
+  transform: scale(1.12);
+}
+
+.muestra-color.activa {
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.14),
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--accent);
+}
+
+.muestra-color.personalizado {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  background: conic-gradient(
+    from 90deg,
+    #d98b8b,
+    #d9c08b,
+    #a8d98b,
+    #8bd9c5,
+    #8baed9,
+    #b08bd9,
+    #d98bc5,
+    #d98b8b
+  );
+}
+
+.muestra-color.personalizado input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
 }
