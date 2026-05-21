@@ -3,7 +3,7 @@ import { PantallaCuentas } from "../modules/cuentas/PantallaCuentas";
 import { PantallaDashboard } from "../modules/dashboard/PantallaDashboard";
 import { PantallaMovimientos } from "../modules/movimientos/PantallaMovimientos";
 import { PantallaCategorias } from "../modules/parametros/PantallaCategorias";
-import { PantallaCotizaciones } from "../modules/parametros/PantallaCotizaciones";
+import { sincronizarCotizaciones } from "../modules/parametros/cotizaciones.servicio";
 import { PantallaPrestamos } from "../modules/prestamos/PantallaPrestamos";
 import { PantallaRecurrencia } from "../modules/recurrencia/PantallaRecurrencia";
 import { aplicarReglasAutomaticas } from "../modules/recurrencia/recurrencia.servicio";
@@ -16,7 +16,6 @@ type Vista =
   | "movimientos"
   | "cuentas"
   | "categorias"
-  | "cotizaciones"
   | "recurrencia"
   | "rendimientos"
   | "prestamos";
@@ -29,7 +28,6 @@ const NAVEGACION: { id: Vista; etiqueta: string }[] = [
   { id: "prestamos", etiqueta: "Préstamos" },
   { id: "cuentas", etiqueta: "Cuentas" },
   { id: "categorias", etiqueta: "Categorías" },
-  { id: "cotizaciones", etiqueta: "Cotizaciones" },
 ];
 
 function App() {
@@ -38,6 +36,7 @@ function App() {
 
   useEffect(() => {
     async function iniciar() {
+      await sincronizarCotizaciones();
       await aplicarReglasAutomaticas();
       await acreditarInteresPendiente();
     }
@@ -73,7 +72,6 @@ function App() {
         {vista === "prestamos" && <PantallaPrestamos />}
         {vista === "cuentas" && <PantallaCuentas />}
         {vista === "categorias" && <PantallaCategorias />}
-        {vista === "cotizaciones" && <PantallaCotizaciones />}
       </main>
     </div>
   );

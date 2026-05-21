@@ -5,7 +5,9 @@ import { listarCuentas } from "../cuentas/cuentas.repositorio";
 import { BLOQUE_DE_TIPO, ORDEN_BLOQUES, type Cuenta } from "../cuentas/cuentas.tipos";
 import { listarMovimientos } from "../movimientos/movimientos.repositorio";
 import { listarCotizaciones } from "../parametros/cotizaciones.repositorio";
+import type { Cotizacion } from "../parametros/cotizaciones.tipos";
 import { obtenerRendimientos } from "../rendimientos/rendimientos.servicio";
+import { PanelCotizaciones } from "./PanelCotizaciones";
 import { obtenerResumen } from "./resumen";
 import "./dashboard.css";
 
@@ -23,6 +25,7 @@ export function PantallaDashboard() {
   const [consolidadoPesos, setConsolidadoPesos] = useState("0");
   const [consolidadoDolares, setConsolidadoDolares] = useState("0");
   const [gananciaDiaria, setGananciaDiaria] = useState("0");
+  const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([]);
   const [cotizacionesListas, setCotizacionesListas] = useState(false);
   const [monedaConsolidado, setMonedaConsolidado] = useState<GrupoMoneda>("Pesos");
   const [cargando, setCargando] = useState(true);
@@ -63,6 +66,7 @@ export function PantallaDashboard() {
 
       setCuentas(activas);
       setMonedas(listaMonedas);
+      setCotizaciones(listaCotizaciones);
       setSaldos(new Map(resumen.saldos.map((s) => [s.cuentaId, s.saldo])));
       setTotalPesos(resumen.totalPesos);
       setTotalDolares(resumen.totalDolares);
@@ -162,7 +166,7 @@ export function PantallaDashboard() {
                     </span>
                   ) : (
                     <span className="consolidado-vacio">
-                      Cargá las cotizaciones para ver el patrimonio
+                      Cargá las cotizaciones más abajo para ver el patrimonio
                       consolidado.
                     </span>
                   )}
@@ -177,6 +181,11 @@ export function PantallaDashboard() {
                   </span>
                 </div>
               )}
+
+              <PanelCotizaciones
+                cotizaciones={cotizaciones}
+                onActualizada={cargar}
+              />
             </div>
           </div>
 

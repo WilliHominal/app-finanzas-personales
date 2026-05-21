@@ -163,3 +163,49 @@
   font-size: 15px;
   font-weight: 600;
 }
+
+/* Panel de cotizaciones del dólar */
+.cotizaciones-panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  background: var(--bg);
+}
+
+.cotizacion-fila {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cotizacion-nombre {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.cotizacion-valor {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cotizacion-input {
+  margin-left: auto;
+  width: 104px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  background: var(--bg);
+}
+
+.cotizacion-fecha {
+  margin: 0;
+  padding: 7px 16px 9px;
+  font-size: 11px;
+  color: var(--muted);
+}
