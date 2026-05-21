@@ -12,7 +12,7 @@ Toda la información vive en un único archivo SQLite local — sin nube, sin cu
 - **Rendimientos** — cuentas remuneradas con TNA por tramos; el interés compuesto se acredita solo, día a día.
 - **Préstamos** — otorgados y recibidos, con sus cobros, pagos y ampliaciones, y el historial de cada uno.
 - **Dashboard** — totales por moneda y patrimonio consolidado, con el saldo de cada cuenta.
-- **Cotizaciones automáticas** — dólar MEP y cripto desde dolarapi.com, con cache offline y override manual.
+- **Cotizaciones automáticas** — dólar MEP (dolarapi.com) y cripto Fiwind (criptoya.com), con cache offline.
 - **Decimal exacto** — el dinero nunca se representa con punto flotante.
 
 ## Stack

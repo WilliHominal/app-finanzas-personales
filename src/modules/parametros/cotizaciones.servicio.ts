@@ -8,9 +8,9 @@ const NOMBRE_FINANCIERO = "Dólar Financiero";
 const NOMBRE_CRIPTO = "Dólar Cripto";
 
 /**
- * Sincroniza las cotizaciones con dolarapi.com y las cachea en la base.
- * Si no hay conexión no toca nada: la app sigue con el último valor
- * guardado. Devuelve true solo si logró actualizar.
+ * Sincroniza las cotizaciones del dólar — MEP y cripto Fiwind — y las
+ * cachea en la base. Si no hay conexión no toca nada: la app sigue con el
+ * último valor guardado. Devuelve true solo si logró actualizar.
  */
 export async function sincronizarCotizaciones(): Promise<boolean> {
   const remotas = await obtenerCotizacionesRemotas();
