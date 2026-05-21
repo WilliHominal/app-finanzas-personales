@@ -93,11 +93,16 @@ export function FormularioCuenta({
           onChange={(e) => setMonedaId(e.target.value)}
         >
           <option value="">Elegí…</option>
-          {monedas.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.codigo}
-            </option>
-          ))}
+          {monedas
+            .filter(
+              (m) =>
+                m.tipo === "Moneda" || m.id === cuentaAEditar?.monedaId,
+            )
+            .map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.codigo}
+              </option>
+            ))}
         </select>
       </div>
       <button type="submit" className="boton-primario" disabled={guardando}>

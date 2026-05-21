@@ -30,12 +30,13 @@ export async function listarCuentas(): Promise<Cuenta[]> {
   }));
 }
 
-export async function crearCuenta(nueva: NuevaCuenta): Promise<void> {
+export async function crearCuenta(nueva: NuevaCuenta): Promise<number> {
   const db = await obtenerDb();
-  await db.execute(
+  const resultado = await db.execute(
     "INSERT INTO cuenta (nombre, tipo, moneda_id) VALUES ($1, $2, $3)",
     [nueva.nombre, nueva.tipo, nueva.monedaId],
   );
+  return resultado.lastInsertId as number;
 }
 
 export async function actualizarCuenta(

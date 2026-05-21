@@ -7,11 +7,13 @@ import {
 } from "./cuentas.repositorio";
 import { ETIQUETA_TIPO, type Cuenta, type EstadoCuenta } from "./cuentas.tipos";
 import { FormularioCuenta } from "./FormularioCuenta";
+import { FormularioTenencia } from "./FormularioTenencia";
 
 export function PantallaCuentas() {
   const [cuentas, setCuentas] = useState<Cuenta[]>([]);
   const [monedas, setMonedas] = useState<Moneda[]>([]);
   const [cuentaEnEdicion, setCuentaEnEdicion] = useState<Cuenta | null>(null);
+  const [modoAlta, setModoAlta] = useState<"cuenta" | "tenencia">("cuenta");
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
@@ -66,13 +68,53 @@ export function PantallaCuentas() {
         </p>
       </header>
 
-      <FormularioCuenta
-        key={cuentaEnEdicion ? `editar-${cuentaEnEdicion.id}` : "nueva"}
-        monedas={monedas}
-        cuentaAEditar={cuentaEnEdicion}
-        onGuardada={terminarEdicion}
-        onCancelar={() => setCuentaEnEdicion(null)}
-      />
+      {cuentaEnEdicion ? (
+        <FormularioCuenta
+          key={`editar-${cuentaEnEdicion.id}`}
+          monedas={monedas}
+          cuentaAEditar={cuentaEnEdicion}
+          onGuardada={terminarEdicion}
+          onCancelar={() => setCuentaEnEdicion(null)}
+        />
+      ) : (
+        <>
+          <div className="botones-segmentados alta-modo">
+            <button
+              type="button"
+              className={
+                modoAlta === "cuenta"
+                  ? "boton-segmento activo"
+                  : "boton-segmento"
+              }
+              onClick={() => setModoAlta("cuenta")}
+            >
+              Cuenta
+            </button>
+            <button
+              type="button"
+              className={
+                modoAlta === "tenencia"
+                  ? "boton-segmento activo"
+                  : "boton-segmento"
+              }
+              onClick={() => setModoAlta("tenencia")}
+            >
+              Tenencia (CEDEAR/ETF)
+            </button>
+          </div>
+          {modoAlta === "cuenta" ? (
+            <FormularioCuenta
+              key="nueva"
+              monedas={monedas}
+              cuentaAEditar={null}
+              onGuardada={terminarEdicion}
+              onCancelar={() => setCuentaEnEdicion(null)}
+            />
+          ) : (
+            <FormularioTenencia onGuardada={terminarEdicion} />
+          )}
+        </>
+      )}
 
       {error && <p className="error">{error}</p>}
 
