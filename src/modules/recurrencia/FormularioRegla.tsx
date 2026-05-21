@@ -2,11 +2,13 @@ import { useState, type FormEvent } from "react";
 import type { Cuenta } from "../cuentas/cuentas.tipos";
 import type { Categoria } from "../parametros/categorias.tipos";
 import { actualizarRegla, crearRegla } from "./recurrencia.repositorio";
-import type {
-  ModoRegla,
-  NuevaRegla,
-  ReglaRecurrente,
-  TipoRegla,
+import {
+  MESES,
+  type Frecuencia,
+  type ModoRegla,
+  type NuevaRegla,
+  type ReglaRecurrente,
+  type TipoRegla,
 } from "./recurrencia.tipos";
 
 interface Props {
@@ -38,8 +40,16 @@ export function FormularioRegla({
   const [categoriaId, setCategoriaId] = useState(
     reglaAEditar?.categoriaId != null ? String(reglaAEditar.categoriaId) : "",
   );
+  const [frecuencia, setFrecuencia] = useState<Frecuencia>(
+    reglaAEditar?.frecuencia ?? "Mensual",
+  );
   const [diaAplicacion, setDiaAplicacion] = useState(
     reglaAEditar ? String(reglaAEditar.diaAplicacion) : "1",
+  );
+  const [mesAplicacion, setMesAplicacion] = useState(
+    reglaAEditar?.mesAplicacion != null
+      ? String(reglaAEditar.mesAplicacion)
+      : "1",
   );
   const [vigenciaDesde, setVigenciaDesde] = useState(
     reglaAEditar?.vigenciaDesde ?? hoy(),
@@ -82,6 +92,14 @@ export function FormularioRegla({
       setError("El día del mes debe estar entre 1 y 28.");
       return;
     }
+    let mes: number | null = null;
+    if (frecuencia === "Anual") {
+      mes = Number(mesAplicacion);
+      if (!Number.isInteger(mes) || mes < 1 || mes > 12) {
+        setError("Elegí el mes en que se aplica la regla anual.");
+        return;
+      }
+    }
     if (!vigenciaDesde) {
       setError("Indicá desde cuándo rige la regla.");
       return;
@@ -96,7 +114,9 @@ export function FormularioRegla({
         monto: montoNumero.toFixed(2),
         cuentaId: Number(cuentaId),
         categoriaId: Number(categoriaId),
+        frecuencia,
         diaAplicacion: dia,
+        mesAplicacion: mes,
         vigenciaDesde,
         vigenciaHasta: vigenciaHasta || null,
         modo,
@@ -136,7 +156,7 @@ export function FormularioRegla({
           id="regla-descripcion"
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
-          placeholder="Ej: Sueldo Airtm, Netflix…"
+          placeholder="Ej: Sueldo Airtm, Netflix, Disney+…"
         />
       </div>
       <div className="campo">
@@ -181,6 +201,33 @@ export function FormularioRegla({
           ))}
         </select>
       </div>
+      <div className="campo">
+        <label htmlFor="regla-frecuencia">Frecuencia</label>
+        <select
+          id="regla-frecuencia"
+          value={frecuencia}
+          onChange={(e) => setFrecuencia(e.target.value as Frecuencia)}
+        >
+          <option value="Mensual">Mensual</option>
+          <option value="Anual">Anual</option>
+        </select>
+      </div>
+      {frecuencia === "Anual" && (
+        <div className="campo">
+          <label htmlFor="regla-mes">Mes</label>
+          <select
+            id="regla-mes"
+            value={mesAplicacion}
+            onChange={(e) => setMesAplicacion(e.target.value)}
+          >
+            {MESES.map((nombre, indice) => (
+              <option key={nombre} value={indice + 1}>
+                {nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
       <div className="campo">
         <label htmlFor="regla-dia">Día del mes</label>
         <input

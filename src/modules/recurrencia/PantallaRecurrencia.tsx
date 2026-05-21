@@ -10,7 +10,16 @@ import {
   eliminarRegla,
   listarReglas,
 } from "./recurrencia.repositorio";
-import { ETIQUETA_MODO, type ReglaRecurrente } from "./recurrencia.tipos";
+import { ETIQUETA_MODO, MESES, type ReglaRecurrente } from "./recurrencia.tipos";
+
+/** Describe cuándo se aplica una regla según su frecuencia. */
+function cuando(regla: ReglaRecurrente): string {
+  if (regla.frecuencia === "Anual" && regla.mesAplicacion !== null) {
+    const mes = MESES[regla.mesAplicacion - 1].toLowerCase();
+    return `${regla.diaAplicacion} de ${mes}`;
+  }
+  return `Día ${regla.diaAplicacion}`;
+}
 
 export function PantallaRecurrencia() {
   const [reglas, setReglas] = useState<ReglaRecurrente[]>([]);
@@ -81,8 +90,9 @@ export function PantallaRecurrencia() {
       <header className="pantalla-encabezado">
         <h2>Reglas Recurrentes</h2>
         <p>
-          Lo que se repite todos los meses: suscripciones, sueldos. Cada regla
-          es una plantilla; al llegar su día genera un movimiento real.
+          Lo que se repite cada tanto: suscripciones, sueldos, pagos anuales.
+          Cada regla es una plantilla; al llegar su fecha genera un movimiento
+          real.
         </p>
       </header>
 
@@ -117,7 +127,7 @@ export function PantallaRecurrencia() {
               <th>Cuenta</th>
               <th>Categoría</th>
               <th className="monto">Monto</th>
-              <th>Día</th>
+              <th>Cuándo</th>
               <th>Modo</th>
               <th>Estado</th>
               <th aria-label="Acciones"></th>
@@ -140,7 +150,7 @@ export function PantallaRecurrencia() {
                 >
                   {formatearMonto(regla.monto)}
                 </td>
-                <td>{regla.diaAplicacion}</td>
+                <td>{cuando(regla)}</td>
                 <td>{ETIQUETA_MODO[regla.modo]}</td>
                 <td>
                   <span

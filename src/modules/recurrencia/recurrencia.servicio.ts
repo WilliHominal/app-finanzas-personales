@@ -64,6 +64,8 @@ export async function aplicarReglasAutomaticas(): Promise<number> {
       regla.vigenciaHasta,
       regla.diaAplicacion,
       fechaHoy,
+      regla.frecuencia,
+      regla.mesAplicacion,
     );
     const yaGeneradas = generadas.get(regla.id) ?? new Set<string>();
     for (const fecha of ocurrencias) {
@@ -93,6 +95,8 @@ export async function calcularPendientes(): Promise<Pendiente[]> {
       regla.vigenciaHasta,
       regla.diaAplicacion,
       fechaHoy,
+      regla.frecuencia,
+      regla.mesAplicacion,
     );
     const yaGeneradas = generadas.get(regla.id) ?? new Set<string>();
     for (const fecha of ocurrencias) {

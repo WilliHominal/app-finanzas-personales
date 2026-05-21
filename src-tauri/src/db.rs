@@ -58,5 +58,11 @@ pub fn migraciones() -> Vec<Migration> {
             sql: include_str!("../migrations/0008_prestamo.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 9,
+            description: "regla_mes_aplicacion",
+            sql: include_str!("../migrations/0009_regla_mes.sql"),
+            kind: MigrationKind::Up,
+        },
     ]
 }

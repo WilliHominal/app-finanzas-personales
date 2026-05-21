@@ -1,5 +1,6 @@
 import { obtenerDb } from "../../shared/db";
 import type {
+  Frecuencia,
   ModoRegla,
   NuevaRegla,
   ReglaRecurrente,
@@ -13,7 +14,9 @@ interface FilaRegla {
   monto: string;
   cuenta_id: number;
   categoria_id: number | null;
+  frecuencia: string;
   dia_aplicacion: number;
+  mes_aplicacion: number | null;
   vigencia_desde: string;
   vigencia_hasta: string | null;
   modo: string;
@@ -23,8 +26,9 @@ interface FilaRegla {
 export async function listarReglas(): Promise<ReglaRecurrente[]> {
   const db = await obtenerDb();
   const filas = await db.select<FilaRegla[]>(
-    `SELECT id, tipo, descripcion, monto, cuenta_id, categoria_id,
-            dia_aplicacion, vigencia_desde, vigencia_hasta, modo, activa
+    `SELECT id, tipo, descripcion, monto, cuenta_id, categoria_id, frecuencia,
+            dia_aplicacion, mes_aplicacion, vigencia_desde, vigencia_hasta,
+            modo, activa
      FROM regla_recurrente
      ORDER BY activa DESC, descripcion`,
   );
@@ -35,7 +39,9 @@ export async function listarReglas(): Promise<ReglaRecurrente[]> {
     monto: fila.monto,
     cuentaId: fila.cuenta_id,
     categoriaId: fila.categoria_id,
+    frecuencia: fila.frecuencia as Frecuencia,
     diaAplicacion: fila.dia_aplicacion,
+    mesAplicacion: fila.mes_aplicacion,
     vigenciaDesde: fila.vigencia_desde,
     vigenciaHasta: fila.vigencia_hasta,
     modo: fila.modo as ModoRegla,
@@ -47,16 +53,18 @@ export async function crearRegla(nueva: NuevaRegla): Promise<void> {
   const db = await obtenerDb();
   await db.execute(
     `INSERT INTO regla_recurrente
-       (tipo, descripcion, monto, cuenta_id, categoria_id, dia_aplicacion,
-        vigencia_desde, vigencia_hasta, modo)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+       (tipo, descripcion, monto, cuenta_id, categoria_id, frecuencia,
+        dia_aplicacion, mes_aplicacion, vigencia_desde, vigencia_hasta, modo)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
     [
       nueva.tipo,
       nueva.descripcion,
       nueva.monto,
       nueva.cuentaId,
       nueva.categoriaId,
+      nueva.frecuencia,
       nueva.diaAplicacion,
+      nueva.mesAplicacion,
       nueva.vigenciaDesde,
       nueva.vigenciaHasta,
       nueva.modo,
@@ -72,16 +80,19 @@ export async function actualizarRegla(
   await db.execute(
     `UPDATE regla_recurrente SET
        tipo = $1, descripcion = $2, monto = $3, cuenta_id = $4,
-       categoria_id = $5, dia_aplicacion = $6, vigencia_desde = $7,
-       vigencia_hasta = $8, modo = $9
-     WHERE id = $10`,
+       categoria_id = $5, frecuencia = $6, dia_aplicacion = $7,
+       mes_aplicacion = $8, vigencia_desde = $9, vigencia_hasta = $10,
+       modo = $11
+     WHERE id = $12`,
     [
       datos.tipo,
       datos.descripcion,
       datos.monto,
       datos.cuentaId,
       datos.categoriaId,
+      datos.frecuencia,
       datos.diaAplicacion,
+      datos.mesAplicacion,
       datos.vigenciaDesde,
       datos.vigenciaHasta,
       datos.modo,
