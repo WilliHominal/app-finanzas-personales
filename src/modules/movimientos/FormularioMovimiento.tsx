@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from "react";
+import { formatearMonto } from "../../shared/formato";
+import type { Moneda } from "../../shared/monedas";
 import type { Cuenta } from "../cuentas/cuentas.tipos";
 import type { Categoria } from "../parametros/categorias.tipos";
 import { actualizarMovimiento, crearMovimiento } from "./movimientos.repositorio";
@@ -11,6 +13,7 @@ import {
 
 interface Props {
   cuentas: Cuenta[];
+  monedas: Moneda[];
   categorias: Categoria[];
   movimientoAEditar: Movimiento | null;
   onGuardado: () => void;
@@ -41,6 +44,7 @@ function montoInicial(movimiento: Movimiento | null): string {
 
 export function FormularioMovimiento({
   cuentas,
+  monedas,
   categorias,
   movimientoAEditar,
   onGuardado,
@@ -90,6 +94,43 @@ export function FormularioMovimiento({
     cuentaOrigenId !== "" &&
     cuentaDestinoId !== "" &&
     monedaDe(cuentaOrigenId) !== monedaDe(cuentaDestinoId);
+
+  function monedaPorCuenta(idTexto: string): Moneda | undefined {
+    const id = monedaDe(idTexto);
+    return id === null ? undefined : monedas.find((m) => m.id === id);
+  }
+
+  /**
+   * En un canje contra un instrumento, sugiere el monto en pesos: el lado en
+   * pesos vale `unidades × precio`. La sugerencia es editable — el monto real
+   * lo pone el usuario.
+   */
+  function sugerirCanje(): { campo: "origen" | "destino"; monto: string } | null {
+    if (!esCanje) return null;
+    const destino = monedaPorCuenta(cuentaDestinoId);
+    if (
+      destino?.tipo === "Instrumento" &&
+      destino.precio &&
+      montoValido(montoDestino)
+    ) {
+      return {
+        campo: "origen",
+        monto: (Number(montoDestino) * Number(destino.precio)).toFixed(2),
+      };
+    }
+    const origen = monedaPorCuenta(cuentaOrigenId);
+    if (
+      origen?.tipo === "Instrumento" &&
+      origen.precio &&
+      montoValido(montoOrigen)
+    ) {
+      return {
+        campo: "destino",
+        monto: (Number(montoOrigen) * Number(origen.precio)).toFixed(2),
+      };
+    }
+    return null;
+  }
 
   function cambiarTipo(nuevoTipo: TipoMovimiento) {
     setTipo(nuevoTipo);
@@ -178,6 +219,8 @@ export function FormularioMovimiento({
     }
   }
 
+  const sugerido = sugerirCanje();
+
   return (
     <form className="formulario" onSubmit={manejarEnvio}>
       <div className="campo">
@@ -249,6 +292,15 @@ export function FormularioMovimiento({
               onChange={(e) => setMontoOrigen(e.target.value)}
               placeholder="0,00"
             />
+            {sugerido?.campo === "origen" && (
+              <button
+                type="button"
+                className="boton-tenue"
+                onClick={() => setMontoOrigen(sugerido.monto)}
+              >
+                Precio sugerido: $ {formatearMonto(sugerido.monto)}
+              </button>
+            )}
           </div>
           {esCanje && (
             <div className="campo">
@@ -262,6 +314,15 @@ export function FormularioMovimiento({
                 onChange={(e) => setMontoDestino(e.target.value)}
                 placeholder="0,00"
               />
+              {sugerido?.campo === "destino" && (
+                <button
+                  type="button"
+                  className="boton-tenue"
+                  onClick={() => setMontoDestino(sugerido.monto)}
+                >
+                  Precio sugerido: $ {formatearMonto(sugerido.monto)}
+                </button>
+              )}
             </div>
           )}
         </>

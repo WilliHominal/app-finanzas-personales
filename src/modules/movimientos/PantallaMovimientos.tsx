@@ -181,6 +181,7 @@ export function PantallaMovimientos() {
         <FormularioMovimiento
           key={enEdicion ? `editar-${enEdicion.id}` : "nuevo"}
           cuentas={cuentasActivas}
+          monedas={monedas}
           categorias={categoriasActivas}
           movimientoAEditar={enEdicion}
           onGuardado={terminarEdicion}
