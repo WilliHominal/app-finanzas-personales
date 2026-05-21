@@ -17,6 +17,8 @@ export interface ResumenPatrimonial {
 export interface CuentaParaResumen {
   id: number;
   moneda: string;
+  /** Precio en pesos por unidad; solo en cuentas de instrumentos. */
+  precioInstrumento?: string;
 }
 
 export interface CotizacionesEntrada {

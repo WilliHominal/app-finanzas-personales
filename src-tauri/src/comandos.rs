@@ -27,6 +27,8 @@ pub struct MovimientoEntrada {
 pub struct CuentaEntrada {
     id: i64,
     moneda: String,
+    /// Precio en pesos por unidad, presente solo en cuentas de instrumentos.
+    precio_instrumento: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -106,10 +108,13 @@ pub fn resumen_patrimonial(
             cuenta_id: cuenta.id,
             saldo: saldo.to_string(),
         });
-        match cuenta.moneda.as_str() {
-            "ARS" => total_ars += saldo,
-            "USD" => total_usd += saldo,
-            _ => total_cripto += saldo,
+        match &cuenta.precio_instrumento {
+            Some(precio) => total_ars += saldo * decimal_o_cero(precio),
+            None => match cuenta.moneda.as_str() {
+                "ARS" => total_ars += saldo,
+                "USD" => total_usd += saldo,
+                _ => total_cripto += saldo,
+            },
         }
     }
 

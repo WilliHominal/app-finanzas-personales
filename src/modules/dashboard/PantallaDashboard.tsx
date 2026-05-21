@@ -52,11 +52,18 @@ export function PantallaDashboard() {
         obtenerRendimientos(),
       ]);
       const activas = todasLasCuentas.filter((c) => c.estado === "Activa");
-      const codigoPorId = new Map(listaMonedas.map((m) => [m.id, m.codigo]));
-      const cuentasParaResumen = activas.map((c) => ({
-        id: c.id,
-        moneda: codigoPorId.get(c.monedaId) ?? "",
-      }));
+      const monedaPorId = new Map(listaMonedas.map((m) => [m.id, m]));
+      const cuentasParaResumen = activas.map((c) => {
+        const moneda = monedaPorId.get(c.monedaId);
+        return {
+          id: c.id,
+          moneda: moneda?.codigo ?? "",
+          precioInstrumento:
+            moneda?.tipo === "Instrumento"
+              ? (moneda.precio ?? "0")
+              : undefined,
+        };
+      });
       const financiero =
         listaCotizaciones.find((c) => c.nombre === "Dólar Financiero")?.valor ??
         "0";

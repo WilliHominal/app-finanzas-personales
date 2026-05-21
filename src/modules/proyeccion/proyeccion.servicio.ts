@@ -60,6 +60,7 @@ export async function obtenerProyeccion(
     ]);
 
   const codigoMoneda = new Map(monedas.map((m) => [m.id, m.codigo]));
+  const monedaPorId = new Map(monedas.map((m) => [m.id, m]));
   const activas = cuentas.filter((c) => c.estado === "Activa");
   const resumen = await obtenerResumen(
     activas.map((c) => ({
@@ -85,13 +86,17 @@ export async function obtenerProyeccion(
   for (const cuenta of activas) {
     if (idsRemuneradas.has(cuenta.id)) continue;
     const saldo = Number(saldoDe.get(cuenta.id) ?? "0");
-    const codigo = codigoMoneda.get(cuenta.monedaId) ?? "ARS";
-    const valorEnPesos =
-      codigo === "ARS"
+    const moneda = monedaPorId.get(cuenta.monedaId);
+    const codigo = moneda?.codigo ?? "ARS";
+    const esInstrumento = moneda?.tipo === "Instrumento";
+    const valorEnPesos = esInstrumento
+      ? saldo * Number(moneda?.precio ?? "0")
+      : codigo === "ARS"
         ? saldo
         : saldo * (codigo === "USD" ? mep : cripto);
 
     if (
+      esInstrumento ||
       cuenta.tipo === "CriptoInversion" ||
       cuenta.tipo === "InversionesLargoPlazo"
     ) {
