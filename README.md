@@ -14,6 +14,7 @@ Toda la información vive en un único archivo SQLite local — sin nube, sin cu
 - **Dashboard** — totales por moneda y patrimonio consolidado, con el saldo de cada cuenta.
 - **Proyecciones** — simula el patrimonio a 3, 6, 12 o 24 meses, en pesos nominales y de hoy.
 - **Cotizaciones automáticas** — dólar MEP (dolarapi.com) y cripto Fiwind (criptoya.com), con cache offline.
+- **Respaldos** — copia automática diaria del archivo de datos, con exportación manual.
 - **Decimal exacto** — el dinero nunca se representa con punto flotante.
 
 ## Stack
@@ -63,7 +64,7 @@ Desarrollo incremental por fases — cada una deja la aplicación en un estado u
 - ✅ **Fase 3** — Reglas recurrentes
 - ✅ **Fase 4** — Rendimientos y préstamos
 - ✅ **Fase 5** — Simulador de proyecciones
-- ⬜ **Fase 6** — Pulido y producto
+- ✅ **Fase 6** — Pulido y producto
 - ⬜ **Fase 7** — Automatización y multiplataforma
 
 ---
