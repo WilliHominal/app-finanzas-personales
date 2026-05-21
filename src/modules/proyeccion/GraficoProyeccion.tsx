@@ -1,4 +1,4 @@
-import { useRef, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { formatearMontoEntero } from "../../shared/formato";
 import { MESES } from "../recurrencia/recurrencia.tipos";
 import type { PuntoProyeccion } from "./proyeccion.tipos";
@@ -7,12 +7,11 @@ interface Props {
   puntos: PuntoProyeccion[];
 }
 
-const ANCHO = 640;
-const ALTO = 240;
-const M_IZQ = 46;
-const M_DER = 16;
+const ALTO = 280;
+const M_IZQ = 52;
+const M_DER = 20;
 const M_ARR = 16;
-const M_ABA = 30;
+const M_ABA = 34;
 const COLOR_NOMINAL = "var(--accent)";
 const COLOR_USD = "#6b8aa6";
 
@@ -33,14 +32,27 @@ function indexar(valores: number[]): number[] {
 
 /**
  * Gráfico de la proyección: dos curvas —patrimonio nominal y valor en USD—
- * rebasadas a índice 100 para compararlas en un mismo eje. Muestra los
- * valores reales al pasar el mouse.
+ * rebasadas a índice 100 para compararlas en un mismo eje. El `viewBox`
+ * sigue el ancho real del contenedor, de modo que la altura queda fija y el
+ * texto no se deforma. Muestra los valores reales al pasar el mouse.
  */
 export function GraficoProyeccion({ puntos }: Props) {
+  const contenedorRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const [ancho, setAncho] = useState(800);
   const [activo, setActivo] = useState<number | null>(null);
 
-  if (puntos.length < 2) return null;
+  useEffect(() => {
+    const elemento = contenedorRef.current;
+    if (!elemento) return;
+    const observador = new ResizeObserver((entradas) => {
+      setAncho(entradas[0].contentRect.width);
+    });
+    observador.observe(elemento);
+    return () => observador.disconnect();
+  }, []);
+
+  if (puntos.length < 2) return <div ref={contenedorRef} />;
 
   const nominal = indexar(puntos.map((p) => Number(p.patrimonioNominal)));
   const usd = indexar(puntos.map((p) => Number(p.patrimonioUsd)));
@@ -49,7 +61,7 @@ export function GraficoProyeccion({ puntos }: Props) {
   const maximo = Math.max(...valores);
   const rango = maximo - minimo || 1;
 
-  const plotAncho = ANCHO - M_IZQ - M_DER;
+  const plotAncho = ancho - M_IZQ - M_DER;
   const plotAlto = ALTO - M_ARR - M_ABA;
   const ejeX = (i: number) => M_IZQ + (i / (puntos.length - 1)) * plotAncho;
   const ejeY = (valor: number) =>
@@ -68,15 +80,15 @@ export function GraficoProyeccion({ puntos }: Props) {
     const svg = svgRef.current;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();
-    const x = ((evento.clientX - rect.left) / rect.width) * ANCHO;
+    const x = ((evento.clientX - rect.left) / rect.width) * ancho;
     const indice = Math.round(((x - M_IZQ) / plotAncho) * (puntos.length - 1));
     setActivo(Math.max(0, Math.min(puntos.length - 1, indice)));
   }
 
-  const anchoTip = 162;
+  const anchoTip = 164;
 
   return (
-    <>
+    <div ref={contenedorRef}>
       <div className="grafico-leyenda">
         <span className="leyenda-item">
           <span className="leyenda-punto" style={{ background: COLOR_NOMINAL }} />
@@ -90,7 +102,7 @@ export function GraficoProyeccion({ puntos }: Props) {
       </div>
       <svg
         ref={svgRef}
-        viewBox={`0 0 ${ANCHO} ${ALTO}`}
+        viewBox={`0 0 ${ancho} ${ALTO}`}
         className="grafico-svg"
         onMouseMove={alMover}
         onMouseLeave={() => setActivo(null)}
@@ -100,13 +112,13 @@ export function GraficoProyeccion({ puntos }: Props) {
             <line
               x1={M_IZQ}
               y1={ejeY(valor)}
-              x2={ANCHO - M_DER}
+              x2={ancho - M_DER}
               y2={ejeY(valor)}
               className="grafico-grilla"
             />
             <text
-              x={M_IZQ - 7}
-              y={ejeY(valor) + 3.5}
+              x={M_IZQ - 8}
+              y={ejeY(valor) + 4}
               textAnchor="end"
               className="grafico-eje"
             >
@@ -119,7 +131,7 @@ export function GraficoProyeccion({ puntos }: Props) {
           <text
             key={i}
             x={ejeX(i)}
-            y={ALTO - M_ABA + 17}
+            y={ALTO - M_ABA + 19}
             textAnchor="middle"
             className="grafico-eje"
           >
@@ -143,7 +155,7 @@ export function GraficoProyeccion({ puntos }: Props) {
             const cx = ejeX(activo);
             const tx = Math.min(
               Math.max(cx + 10, M_IZQ),
-              ANCHO - M_DER - anchoTip,
+              ancho - M_DER - anchoTip,
             );
             const ty = M_ARR + 4;
             const punto = puntos[activo];
@@ -159,48 +171,31 @@ export function GraficoProyeccion({ puntos }: Props) {
                 <circle
                   cx={cx}
                   cy={ejeY(nominal[activo])}
-                  r="3.5"
+                  r="4"
                   fill={COLOR_NOMINAL}
                 />
-                <circle
-                  cx={cx}
-                  cy={ejeY(usd[activo])}
-                  r="3.5"
-                  fill={COLOR_USD}
-                />
+                <circle cx={cx} cy={ejeY(usd[activo])} r="4" fill={COLOR_USD} />
                 <rect
                   x={tx}
                   y={ty}
                   width={anchoTip}
-                  height="58"
+                  height="60"
                   rx="6"
                   className="grafico-tooltip"
                 />
-                <text
-                  x={tx + 11}
-                  y={ty + 18}
-                  className="grafico-tooltip-titulo"
-                >
+                <text x={tx + 12} y={ty + 19} className="grafico-tooltip-titulo">
                   {etiquetaMes(activo)}
                 </text>
-                <text
-                  x={tx + 11}
-                  y={ty + 35}
-                  className="grafico-tooltip-texto"
-                >
+                <text x={tx + 12} y={ty + 37} className="grafico-tooltip-texto">
                   Nominal: $ {formatearMontoEntero(punto.patrimonioNominal)}
                 </text>
-                <text
-                  x={tx + 11}
-                  y={ty + 50}
-                  className="grafico-tooltip-texto"
-                >
+                <text x={tx + 12} y={ty + 52} className="grafico-tooltip-texto">
                   USD: $ {formatearMontoEntero(punto.patrimonioUsd)}
                 </text>
               </g>
             );
           })()}
       </svg>
-    </>
+    </div>
   );
 }

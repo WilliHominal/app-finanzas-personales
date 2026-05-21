@@ -47,7 +47,7 @@
 
 .grafico-eje {
   fill: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .grafico-linea {
@@ -69,13 +69,13 @@
 
 .grafico-tooltip-titulo {
   fill: var(--accent);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .grafico-tooltip-texto {
   fill: var(--muted);
-  font-size: 10.5px;
+  font-size: 11px;
 }
 
 .grafico-leyenda {
