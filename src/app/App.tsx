@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PantallaCuentas } from "../modules/cuentas/PantallaCuentas";
 import { PantallaDashboard } from "../modules/dashboard/PantallaDashboard";
 import { PantallaMovimientos } from "../modules/movimientos/PantallaMovimientos";
 import { PantallaCategorias } from "../modules/parametros/PantallaCategorias";
 import { PantallaCotizaciones } from "../modules/parametros/PantallaCotizaciones";
+import { PantallaRecurrencia } from "../modules/recurrencia/PantallaRecurrencia";
+import { aplicarReglasAutomaticas } from "../modules/recurrencia/recurrencia.servicio";
 import "./App.css";
 
 type Vista =
@@ -11,11 +13,13 @@ type Vista =
   | "movimientos"
   | "cuentas"
   | "categorias"
-  | "cotizaciones";
+  | "cotizaciones"
+  | "recurrencia";
 
 const NAVEGACION: { id: Vista; etiqueta: string }[] = [
   { id: "dashboard", etiqueta: "Dashboard" },
   { id: "movimientos", etiqueta: "Movimientos" },
+  { id: "recurrencia", etiqueta: "Recurrentes" },
   { id: "cuentas", etiqueta: "Cuentas" },
   { id: "categorias", etiqueta: "Categorías" },
   { id: "cotizaciones", etiqueta: "Cotizaciones" },
@@ -23,6 +27,15 @@ const NAVEGACION: { id: Vista; etiqueta: string }[] = [
 
 function App() {
   const [vista, setVista] = useState<Vista>("dashboard");
+  const [listo, setListo] = useState(false);
+
+  useEffect(() => {
+    aplicarReglasAutomaticas().finally(() => setListo(true));
+  }, []);
+
+  if (!listo) {
+    return <div className="cargando-app">Cargando…</div>;
+  }
 
   return (
     <div className="app">
@@ -44,6 +57,7 @@ function App() {
       <main className="contenido">
         {vista === "dashboard" && <PantallaDashboard />}
         {vista === "movimientos" && <PantallaMovimientos />}
+        {vista === "recurrencia" && <PantallaRecurrencia />}
         {vista === "cuentas" && <PantallaCuentas />}
         {vista === "categorias" && <PantallaCategorias />}
         {vista === "cotizaciones" && <PantallaCotizaciones />}

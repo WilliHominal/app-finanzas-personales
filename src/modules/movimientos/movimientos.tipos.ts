@@ -10,6 +10,7 @@ export interface Movimiento {
   montoOrigen: string | null;
   montoDestino: string | null;
   categoriaId: number | null;
+  reglaRecurrenteId: number | null;
 }
 
 export interface NuevoMovimiento {
@@ -21,6 +22,7 @@ export interface NuevoMovimiento {
   montoOrigen: string | null;
   montoDestino: string | null;
   categoriaId: number | null;
+  reglaRecurrenteId: number | null;
 }
 
 /** Tipos de movimiento que se pueden registrar. */

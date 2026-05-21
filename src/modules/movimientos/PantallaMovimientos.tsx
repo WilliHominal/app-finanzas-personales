@@ -5,6 +5,11 @@ import { listarCuentas } from "../cuentas/cuentas.repositorio";
 import type { Cuenta } from "../cuentas/cuentas.tipos";
 import { listarCategorias } from "../parametros/categorias.repositorio";
 import type { Categoria } from "../parametros/categorias.tipos";
+import {
+  calcularPendientes,
+  confirmarPendiente,
+  type Pendiente,
+} from "../recurrencia/recurrencia.servicio";
 import { FormularioMovimiento } from "./FormularioMovimiento";
 import { eliminarMovimiento, listarMovimientos } from "./movimientos.repositorio";
 import type { Movimiento } from "./movimientos.tipos";
@@ -14,6 +19,7 @@ export function PantallaMovimientos() {
   const [cuentas, setCuentas] = useState<Cuenta[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [monedas, setMonedas] = useState<Moneda[]>([]);
+  const [pendientes, setPendientes] = useState<Pendiente[]>([]);
   const [enEdicion, setEnEdicion] = useState<Movimiento | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
@@ -21,16 +27,18 @@ export function PantallaMovimientos() {
   const cargar = useCallback(async () => {
     try {
       setError("");
-      const [movs, ctas, cats, mons] = await Promise.all([
+      const [movs, ctas, cats, mons, pend] = await Promise.all([
         listarMovimientos(),
         listarCuentas(),
         listarCategorias(),
         listarMonedas(),
+        calcularPendientes(),
       ]);
       setMovimientos(movs);
       setCuentas(ctas);
       setCategorias(cats);
       setMonedas(mons);
+      setPendientes(pend);
     } catch (e) {
       setError(`No se pudieron cargar los movimientos: ${e}`);
     } finally {
@@ -79,6 +87,11 @@ export function PantallaMovimientos() {
     cargar();
   }
 
+  async function confirmar(pendiente: Pendiente) {
+    await confirmarPendiente(pendiente);
+    cargar();
+  }
+
   function celdaCuenta(mov: Movimiento) {
     if (mov.tipo === "Transferencia") {
       return `${nombreCuenta(mov.cuentaOrigenId)} → ${nombreCuenta(mov.cuentaDestinoId)}`;
@@ -115,6 +128,49 @@ export function PantallaMovimientos() {
         <h2>Movimientos</h2>
         <p>La bitácora de tu dinero. Cada movimiento es un hecho registrado.</p>
       </header>
+
+      {pendientes.length > 0 && (
+        <table className="tabla tabla-pendientes">
+          <thead>
+            <tr>
+              <th>Pendiente de confirmar</th>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Cuenta</th>
+              <th className="monto">Monto</th>
+              <th aria-label="Acciones"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {pendientes.map((pendiente) => (
+              <tr key={`${pendiente.regla.id}-${pendiente.fecha}`}>
+                <td>{pendiente.regla.descripcion}</td>
+                <td>{pendiente.fecha}</td>
+                <td>{pendiente.regla.tipo}</td>
+                <td>{nombreCuenta(pendiente.regla.cuentaId)}</td>
+                <td
+                  className={
+                    pendiente.regla.tipo === "Ingreso"
+                      ? "monto ingreso"
+                      : "monto gasto"
+                  }
+                >
+                  {formatearMonto(pendiente.regla.monto)}
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    className="boton-primario"
+                    onClick={() => confirmar(pendiente)}
+                  >
+                    Confirmar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
       {cuentasActivas.length === 0 ? (
         <p className="vacio">

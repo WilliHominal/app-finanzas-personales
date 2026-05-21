@@ -28,5 +28,17 @@ pub fn migraciones() -> Vec<Migration> {
             sql: include_str!("../migrations/0003_cotizacion.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 4,
+            description: "crear_regla_recurrente",
+            sql: include_str!("../migrations/0004_regla_recurrente.sql"),
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 5,
+            description: "movimiento_regla_recurrente",
+            sql: include_str!("../migrations/0005_movimiento_regla.sql"),
+            kind: MigrationKind::Up,
+        },
     ]
 }

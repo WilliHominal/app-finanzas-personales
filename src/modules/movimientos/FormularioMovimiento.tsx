@@ -21,6 +21,24 @@ function hoy(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+function cuentaInicial(movimiento: Movimiento | null): string {
+  if (!movimiento || movimiento.tipo === "Transferencia") return "";
+  const id =
+    movimiento.tipo === "Gasto"
+      ? movimiento.cuentaOrigenId
+      : movimiento.cuentaDestinoId;
+  return id !== null ? String(id) : "";
+}
+
+function montoInicial(movimiento: Movimiento | null): string {
+  if (!movimiento || movimiento.tipo === "Transferencia") return "";
+  return (
+    (movimiento.tipo === "Gasto"
+      ? movimiento.montoOrigen
+      : movimiento.montoDestino) ?? ""
+  );
+}
+
 export function FormularioMovimiento({
   cuentas,
   categorias,
@@ -30,27 +48,16 @@ export function FormularioMovimiento({
 }: Props) {
   const editar = movimientoAEditar;
   const editando = editar !== null;
+  const esTransferenciaEditada = editar?.tipo === "Transferencia";
 
   const [tipo, setTipo] = useState<TipoMovimiento>(editar?.tipo ?? "Gasto");
   const [fecha, setFecha] = useState(editar?.fecha ?? hoy());
   const [descripcion, setDescripcion] = useState(editar?.descripcion ?? "");
-
-  // Modo simple: Apertura / Ingreso / Gasto.
-  const [cuentaId, setCuentaId] = useState(() => {
-    if (!editar || editar.tipo === "Transferencia") return "";
-    const id = editar.tipo === "Gasto" ? editar.cuentaOrigenId : editar.cuentaDestinoId;
-    return id != null ? String(id) : "";
-  });
-  const [monto, setMonto] = useState(() => {
-    if (!editar || editar.tipo === "Transferencia") return "";
-    return (editar.tipo === "Gasto" ? editar.montoOrigen : editar.montoDestino) ?? "";
-  });
+  const [cuentaId, setCuentaId] = useState(cuentaInicial(editar));
+  const [monto, setMonto] = useState(montoInicial(editar));
   const [categoriaId, setCategoriaId] = useState(
     editar?.categoriaId != null ? String(editar.categoriaId) : "",
   );
-
-  // Modo transferencia / canje.
-  const esTransferenciaEditada = editar?.tipo === "Transferencia";
   const [cuentaOrigenId, setCuentaOrigenId] = useState(
     esTransferenciaEditada && editar.cuentaOrigenId != null
       ? String(editar.cuentaOrigenId)
@@ -67,7 +74,6 @@ export function FormularioMovimiento({
   const [montoDestino, setMontoDestino] = useState(
     esTransferenciaEditada ? (editar.montoDestino ?? "") : "",
   );
-
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
 
@@ -120,11 +126,12 @@ export function FormularioMovimiento({
         montoOrigen: salida,
         montoDestino: entrada,
         categoriaId: null,
+        reglaRecurrenteId: null,
       };
     }
 
     if (!cuentaId) return "Elegí una cuenta.";
-    if (!montoValido(monto)) return "El monto tiene que ser mayor a cero.";
+    if (!montoValido(monto)) return "El monto tiene que ser un número mayor a cero.";
     if (usaCategoria && !categoriaId) return "Elegí una categoría.";
 
     const esEgreso = tipo === "Gasto";
@@ -139,6 +146,7 @@ export function FormularioMovimiento({
       montoOrigen: esEgreso ? montoTexto : null,
       montoDestino: esEgreso ? null : montoTexto,
       categoriaId: usaCategoria ? Number(categoriaId) : null,
+      reglaRecurrenteId: null,
     };
   }
 

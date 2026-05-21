@@ -66,3 +66,20 @@
   color: var(--muted);
   margin: 0;
 }
+
+.cargando-app {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.tabla-pendientes {
+  margin-bottom: 24px;
+}
+
+.tabla-pendientes th:first-child {
+  color: var(--accent);
+}

@@ -11,13 +11,14 @@ interface FilaMovimiento {
   monto_origen: string | null;
   monto_destino: string | null;
   categoria_id: number | null;
+  regla_recurrente_id: number | null;
 }
 
 export async function listarMovimientos(): Promise<Movimiento[]> {
   const db = await obtenerDb();
   const filas = await db.select<FilaMovimiento[]>(
     `SELECT id, fecha, descripcion, tipo, cuenta_origen_id, cuenta_destino_id,
-            monto_origen, monto_destino, categoria_id
+            monto_origen, monto_destino, categoria_id, regla_recurrente_id
      FROM movimiento
      ORDER BY fecha DESC, id DESC`,
   );
@@ -31,6 +32,7 @@ export async function listarMovimientos(): Promise<Movimiento[]> {
     montoOrigen: fila.monto_origen,
     montoDestino: fila.monto_destino,
     categoriaId: fila.categoria_id,
+    reglaRecurrenteId: fila.regla_recurrente_id,
   }));
 }
 
@@ -39,8 +41,8 @@ export async function crearMovimiento(nuevo: NuevoMovimiento): Promise<void> {
   await db.execute(
     `INSERT INTO movimiento
        (fecha, descripcion, tipo, cuenta_origen_id, cuenta_destino_id,
-        monto_origen, monto_destino, categoria_id)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        monto_origen, monto_destino, categoria_id, regla_recurrente_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
     [
       nuevo.fecha,
       nuevo.descripcion,
@@ -50,6 +52,7 @@ export async function crearMovimiento(nuevo: NuevoMovimiento): Promise<void> {
       nuevo.montoOrigen,
       nuevo.montoDestino,
       nuevo.categoriaId,
+      nuevo.reglaRecurrenteId,
     ],
   );
 }
