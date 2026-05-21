@@ -5,6 +5,7 @@ import { listarCuentas } from "../cuentas/cuentas.repositorio";
 import { BLOQUE_DE_TIPO, ORDEN_BLOQUES, type Cuenta } from "../cuentas/cuentas.tipos";
 import { listarMovimientos } from "../movimientos/movimientos.repositorio";
 import { listarCotizaciones } from "../parametros/cotizaciones.repositorio";
+import { obtenerRendimientos } from "../rendimientos/rendimientos.servicio";
 import { obtenerResumen } from "./resumen";
 import "./dashboard.css";
 
@@ -21,6 +22,7 @@ export function PantallaDashboard() {
   const [totalDolares, setTotalDolares] = useState("0");
   const [consolidadoPesos, setConsolidadoPesos] = useState("0");
   const [consolidadoDolares, setConsolidadoDolares] = useState("0");
+  const [gananciaDiaria, setGananciaDiaria] = useState("0");
   const [cotizacionesListas, setCotizacionesListas] = useState(false);
   const [monedaConsolidado, setMonedaConsolidado] = useState<GrupoMoneda>("Pesos");
   const [cargando, setCargando] = useState(true);
@@ -29,13 +31,19 @@ export function PantallaDashboard() {
   const cargar = useCallback(async () => {
     try {
       setError("");
-      const [todasLasCuentas, movimientos, listaMonedas, listaCotizaciones] =
-        await Promise.all([
-          listarCuentas(),
-          listarMovimientos(),
-          listarMonedas(),
-          listarCotizaciones(),
-        ]);
+      const [
+        todasLasCuentas,
+        movimientos,
+        listaMonedas,
+        listaCotizaciones,
+        rendimientos,
+      ] = await Promise.all([
+        listarCuentas(),
+        listarMovimientos(),
+        listarMonedas(),
+        listarCotizaciones(),
+        obtenerRendimientos(),
+      ]);
       const activas = todasLasCuentas.filter((c) => c.estado === "Activa");
       const codigoPorId = new Map(listaMonedas.map((m) => [m.id, m.codigo]));
       const cuentasParaResumen = activas.map((c) => ({
@@ -61,6 +69,12 @@ export function PantallaDashboard() {
       setConsolidadoPesos(resumen.consolidadoPesos);
       setConsolidadoDolares(resumen.consolidadoDolares);
       setCotizacionesListas(Number(financiero) > 0 && Number(cripto) > 0);
+
+      const gananciaTotal = rendimientos.reduce(
+        (total, rendimiento) => total + Number(rendimiento.gananciaDiaria),
+        0,
+      );
+      setGananciaDiaria(gananciaTotal.toFixed(2));
     } catch (e) {
       setError(`No se pudo cargar el tablero: ${e}`);
     } finally {
@@ -112,45 +126,57 @@ export function PantallaDashboard() {
               </div>
             </div>
 
-            <div className="consolidado">
-              <div className="consolidado-cabecera">
-                <span className="consolidado-etiqueta">
-                  Patrimonio consolidado
-                </span>
-                <div
-                  className="switch"
-                  role="group"
-                  aria-label="Moneda del consolidado"
-                >
-                  {OPCIONES_CONSOLIDADO.map((opcion) => (
-                    <button
-                      key={opcion.id}
-                      type="button"
-                      className={
-                        monedaConsolidado === opcion.id
-                          ? "switch-opcion activa"
-                          : "switch-opcion"
-                      }
-                      onClick={() => setMonedaConsolidado(opcion.id)}
-                    >
-                      {opcion.etiqueta}
-                    </button>
-                  ))}
+            <div className="resumen-derecha">
+              <div className="consolidado">
+                <div className="consolidado-cabecera">
+                  <span className="consolidado-etiqueta">
+                    Patrimonio consolidado
+                  </span>
+                  <div
+                    className="switch"
+                    role="group"
+                    aria-label="Moneda del consolidado"
+                  >
+                    {OPCIONES_CONSOLIDADO.map((opcion) => (
+                      <button
+                        key={opcion.id}
+                        type="button"
+                        className={
+                          monedaConsolidado === opcion.id
+                            ? "switch-opcion activa"
+                            : "switch-opcion"
+                        }
+                        onClick={() => setMonedaConsolidado(opcion.id)}
+                      >
+                        {opcion.etiqueta}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="consolidado-cuerpo">
+                  {cotizacionesListas ? (
+                    <span className="consolidado-valor">
+                      {monedaConsolidado === "Pesos"
+                        ? `${formatearMontoEntero(consolidadoPesos)} ARS`
+                        : `${formatearMontoEntero(consolidadoDolares)} USD`}
+                    </span>
+                  ) : (
+                    <span className="consolidado-vacio">
+                      Cargá las cotizaciones para ver el patrimonio
+                      consolidado.
+                    </span>
+                  )}
                 </div>
               </div>
-              <div className="consolidado-cuerpo">
-                {cotizacionesListas ? (
-                  <span className="consolidado-valor">
-                    {monedaConsolidado === "Pesos"
-                      ? `${formatearMontoEntero(consolidadoPesos)} ARS`
-                      : `${formatearMontoEntero(consolidadoDolares)} USD`}
+
+              {Number(gananciaDiaria) > 0 && (
+                <div className="ganancia-diaria">
+                  <span className="etiqueta">Ganancia diaria proyectada</span>
+                  <span className="valor">
+                    {formatearMontoEntero(gananciaDiaria)} ARS
                   </span>
-                ) : (
-                  <span className="consolidado-vacio">
-                    Cargá las cotizaciones para ver el patrimonio consolidado.
-                  </span>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
 

@@ -1,7 +1,10 @@
 //! Comandos expuestos al frontend. Son la capa de aplicación: traducen la
 //! petición, delegan el cálculo en el núcleo y devuelven el resultado.
 
-use nucleo::{saldo_de_cuenta, Decimal, Movimiento, TipoMovimiento};
+use nucleo::{
+    ganancia_diaria, proyeccion_fin_de_mes, saldo_de_cuenta, serie_acreditacion, Decimal,
+    Movimiento, TipoMovimiento, TramoTasa,
+};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -123,4 +126,86 @@ pub fn resumen_patrimonial(
         consolidado_pesos: consolidado_pesos.round_dp(2).to_string(),
         consolidado_dolares: consolidado_dolares.round_dp(2).to_string(),
     }
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TramoEntrada {
+    vigencia_desde: String,
+    tna: String,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CuentaRemuneradaEntrada {
+    cuenta_id: i64,
+    saldo: String,
+    decimales: u32,
+    interes_acreditado_hasta: Option<String>,
+    tramos: Vec<TramoEntrada>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AcreditacionSalida {
+    fecha: String,
+    monto: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RendimientoCuenta {
+    cuenta_id: i64,
+    acreditaciones: Vec<AcreditacionSalida>,
+    ganancia_diaria: String,
+    saldo_proyectado_fin_mes: String,
+    interes_proyectado_fin_mes: String,
+}
+
+/// Calcula, para cada cuenta remunerada, los movimientos de interés que
+/// faltan acreditar desde su última fecha computada y la proyección de su
+/// saldo al fin del mes. Delega todo el cálculo en el núcleo.
+#[tauri::command]
+pub fn calcular_rendimientos(
+    cuentas: Vec<CuentaRemuneradaEntrada>,
+    hoy: String,
+) -> Vec<RendimientoCuenta> {
+    cuentas
+        .into_iter()
+        .map(|cuenta| {
+            let saldo = decimal_o_cero(&cuenta.saldo);
+            let cien = Decimal::from(100);
+            let tramos: Vec<TramoTasa> = cuenta
+                .tramos
+                .iter()
+                .map(|tramo| TramoTasa {
+                    vigencia_desde: tramo.vigencia_desde.clone(),
+                    tna: decimal_o_cero(&tramo.tna) / cien,
+                })
+                .collect();
+
+            let acreditaciones = match &cuenta.interes_acreditado_hasta {
+                Some(desde) => serie_acreditacion(saldo, &tramos, desde, &hoy, cuenta.decimales)
+                    .into_iter()
+                    .map(|acreditacion| AcreditacionSalida {
+                        fecha: acreditacion.fecha,
+                        monto: acreditacion.monto.to_string(),
+                    })
+                    .collect(),
+                None => Vec::new(),
+            };
+
+            let saldo_proyectado = proyeccion_fin_de_mes(saldo, &tramos, &hoy);
+            let interes_proyectado = saldo_proyectado - saldo;
+            let ganancia = ganancia_diaria(saldo, &tramos, &hoy);
+
+            RendimientoCuenta {
+                cuenta_id: cuenta.cuenta_id,
+                acreditaciones,
+                ganancia_diaria: ganancia.round_dp(2).to_string(),
+                saldo_proyectado_fin_mes: saldo_proyectado.round_dp(2).to_string(),
+                interes_proyectado_fin_mes: interes_proyectado.round_dp(2).to_string(),
+            }
+        })
+        .collect()
 }

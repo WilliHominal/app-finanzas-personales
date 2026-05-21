@@ -58,7 +58,7 @@ Desarrollo incremental por fases — cada una deja la aplicación en un estado u
 - ✅ **Fase 1** — MVP: libro de cuentas
 - ✅ **Fase 2** — Multidivisa y canjes
 - ✅ **Fase 3** — Reglas recurrentes
-- ⬜ **Fase 4** — Rendimientos y préstamos
+- ✅ **Fase 4** — Rendimientos y préstamos
 - ⬜ **Fase 5** — Simulador de proyecciones
 - ⬜ **Fase 6** — Pulido y producto
 - ⬜ **Fase 7** — Automatización y multiplataforma

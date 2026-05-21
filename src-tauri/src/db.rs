@@ -40,5 +40,23 @@ pub fn migraciones() -> Vec<Migration> {
             sql: include_str!("../migrations/0005_movimiento_regla.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 6,
+            description: "crear_tasa_tna",
+            sql: include_str!("../migrations/0006_tasa_tna.sql"),
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 7,
+            description: "baja_tna_cuenta",
+            sql: include_str!("../migrations/0007_baja_tna_cuenta.sql"),
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 8,
+            description: "crear_prestamo",
+            sql: include_str!("../migrations/0008_prestamo.sql"),
+            kind: MigrationKind::Up,
+        },
     ]
 }

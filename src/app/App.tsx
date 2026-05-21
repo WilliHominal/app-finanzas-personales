@@ -4,8 +4,11 @@ import { PantallaDashboard } from "../modules/dashboard/PantallaDashboard";
 import { PantallaMovimientos } from "../modules/movimientos/PantallaMovimientos";
 import { PantallaCategorias } from "../modules/parametros/PantallaCategorias";
 import { PantallaCotizaciones } from "../modules/parametros/PantallaCotizaciones";
+import { PantallaPrestamos } from "../modules/prestamos/PantallaPrestamos";
 import { PantallaRecurrencia } from "../modules/recurrencia/PantallaRecurrencia";
 import { aplicarReglasAutomaticas } from "../modules/recurrencia/recurrencia.servicio";
+import { PantallaRendimientos } from "../modules/rendimientos/PantallaRendimientos";
+import { acreditarInteresPendiente } from "../modules/rendimientos/rendimientos.servicio";
 import "./App.css";
 
 type Vista =
@@ -14,12 +17,16 @@ type Vista =
   | "cuentas"
   | "categorias"
   | "cotizaciones"
-  | "recurrencia";
+  | "recurrencia"
+  | "rendimientos"
+  | "prestamos";
 
 const NAVEGACION: { id: Vista; etiqueta: string }[] = [
   { id: "dashboard", etiqueta: "Dashboard" },
   { id: "movimientos", etiqueta: "Movimientos" },
   { id: "recurrencia", etiqueta: "Recurrentes" },
+  { id: "rendimientos", etiqueta: "Rendimientos" },
+  { id: "prestamos", etiqueta: "Préstamos" },
   { id: "cuentas", etiqueta: "Cuentas" },
   { id: "categorias", etiqueta: "Categorías" },
   { id: "cotizaciones", etiqueta: "Cotizaciones" },
@@ -30,7 +37,11 @@ function App() {
   const [listo, setListo] = useState(false);
 
   useEffect(() => {
-    aplicarReglasAutomaticas().finally(() => setListo(true));
+    async function iniciar() {
+      await aplicarReglasAutomaticas();
+      await acreditarInteresPendiente();
+    }
+    iniciar().finally(() => setListo(true));
   }, []);
 
   if (!listo) {
@@ -58,6 +69,8 @@ function App() {
         {vista === "dashboard" && <PantallaDashboard />}
         {vista === "movimientos" && <PantallaMovimientos />}
         {vista === "recurrencia" && <PantallaRecurrencia />}
+        {vista === "rendimientos" && <PantallaRendimientos />}
+        {vista === "prestamos" && <PantallaPrestamos />}
         {vista === "cuentas" && <PantallaCuentas />}
         {vista === "categorias" && <PantallaCategorias />}
         {vista === "cotizaciones" && <PantallaCotizaciones />}

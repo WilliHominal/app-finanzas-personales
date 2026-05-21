@@ -5,4 +5,4 @@ edition = "2021"
 description = "Núcleo financiero — dominio puro, sin dependencias de framework"
 
 [dependencies]
-rust_decimal = "1"
+rust_decimal = { version = "1", features = ["maths"] }

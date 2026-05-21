@@ -13,6 +13,13 @@
   gap: 16px;
 }
 
+.resumen-derecha {
+  display: flex;
+  flex: 0 1 380px;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .total {
   flex: 1;
   border: 1px solid var(--border);
@@ -42,7 +49,7 @@
 /* Tarjeta destacada del patrimonio consolidado */
 .consolidado {
   display: flex;
-  flex: 0 1 380px;
+  flex: 1;
   flex-direction: column;
   gap: 14px;
   background: var(--accent);
@@ -62,6 +69,8 @@
   flex: 1;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .consolidado-etiqueta {
@@ -130,4 +139,27 @@
 .celda-saldo {
   width: 1%;
   white-space: nowrap;
+}
+
+.ganancia-diaria {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  background: var(--bg);
+  padding: 12px 20px;
+}
+
+.ganancia-diaria .etiqueta {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.ganancia-diaria .valor {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
 }

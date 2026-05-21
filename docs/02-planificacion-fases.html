@@ -346,12 +346,12 @@
           <p class="objetivo">Que la aplicación <b>proyecte rendimientos</b> y entienda la <b>plata que te deben</b>.</p>
           <div class="field-label">Alcance</div>
           <ul class="scope">
-            <li>Cuentas Remuneradas con campo TNA variable, de carga manual.</li>
-            <li>Motor de Interés Compuesto Diario en Rust (TDD): el devengado se calcula al vuelo, sin generar movimientos diarios.</li>
+            <li>Cuentas Remuneradas con TNA de carga manual, versionada en tramos históricos.</li>
+            <li>Motor de Interés Compuesto Diario en Rust (TDD): genera un movimiento de interés por día sobre el saldo vigente, respetando el tramo de tasa de cada fecha.</li>
             <li>Proyección a fin de mes — fórmula <code>POTENCIA</code> con Días Restantes dinámicos.</li>
-            <li>Entidad <code>Prestamo</code> + tipos de cuenta Préstamo Otorgado / Recibido.</li>
-            <li>Préstamos con interés: reúsan el mismo motor de interés compuesto. Cero código duplicado.</li>
-            <li>Cronograma de cuota fija (ej. 300k/mes) se apoya en las Reglas Recurrentes de la Fase 3; los pagos esporádicos son movimientos sueltos.</li>
+            <li>Entidad <code>Prestamo</code> sobre los tipos de cuenta Préstamo Otorgado / Recibido: capital, contraparte y fecha.</li>
+            <li>Préstamos sin interés: el capital prestado es el que se devuelve.</li>
+            <li>Cobros, pagos y ampliaciones se registran desde la pantalla de Préstamos; cada uno ajusta el saldo del préstamo con la transferencia correspondiente.</li>
             <li>Dashboard: bloque "Por Cobrar / Por Pagar" + métrica Ganancia Diaria Proyectada Total.</li>
           </ul>
           <div class="field-label">Entregable</div>
@@ -359,7 +359,7 @@
           <div class="field-label">Definición de hecho</div>
           <div class="done"><span class="icon">✓</span>La proyección de fin de mes coincide con el cálculo manual; el saldo de un préstamo baja con cada cuota cobrada.</div>
           <div class="field-label">Riesgo principal</div>
-          <div class="risk"><span class="icon">!</span>La TNA es variable en el tiempo: definir si el devengado al vuelo usa la tasa vigente o respeta los cambios históricos de tasa.</div>
+          <div class="risk"><span class="icon">!</span>La TNA es variable en el tiempo: resuelto con tramos históricos — cada cambio de tasa es un hecho versionado y el interés de cada día respeta el tramo vigente.</div>
         </div>
       </div>
     </div>
