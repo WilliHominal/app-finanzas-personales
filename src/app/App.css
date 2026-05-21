@@ -14,40 +14,12 @@
   gap: 24px;
 }
 
-.barra-lateral.colapsada {
-  width: auto;
-  padding: 18px 10px;
-}
-
-.barra-cabecera {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
 .marca {
   font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--accent);
   padding: 0 10px;
-}
-
-.boton-menu {
-  background: transparent;
-  border: 0;
-  color: var(--muted);
-  font-size: 17px;
-  line-height: 1;
-  padding: 6px 9px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.boton-menu:hover {
-  background: var(--bg-soft);
-  color: var(--accent);
 }
 
 .navegacion {

@@ -279,7 +279,7 @@
   flex-wrap: wrap;
   gap: 9px;
   align-items: center;
-  padding-top: 2px;
+  min-height: 36px;
 }
 
 .muestra-color {

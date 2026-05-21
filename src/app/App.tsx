@@ -40,7 +40,6 @@ const NAVEGACION: { id: Vista; etiqueta: string }[] = [
 
 function App() {
   const [vista, setVista] = useState<Vista>("dashboard");
-  const [menuVisible, setMenuVisible] = useState(true);
   const [listo, setListo] = useState(false);
 
   useEffect(() => {
@@ -67,9 +66,6 @@ function App() {
           evento.preventDefault();
           setVista(NAVEGACION[indice].id);
         }
-      } else if (evento.ctrlKey && evento.key.toLowerCase() === "b") {
-        evento.preventDefault();
-        setMenuVisible((visible) => !visible);
       }
     }
     window.addEventListener("keydown", alPresionar);
@@ -82,50 +78,21 @@ function App() {
 
   return (
     <div className="app">
-      <aside
-        className={menuVisible ? "barra-lateral" : "barra-lateral colapsada"}
-      >
-        {menuVisible ? (
-          <>
-            <div className="barra-cabecera">
-              <h1 className="marca">Finanzas</h1>
-              <button
-                type="button"
-                className="boton-menu"
-                onClick={() => setMenuVisible(false)}
-                title="Ocultar menú (Ctrl+B)"
-                aria-label="Ocultar menú"
-              >
-                ‹
-              </button>
-            </div>
-            <nav className="navegacion">
-              {NAVEGACION.map((item, indice) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={
-                    item.id === vista ? "nav-item activo" : "nav-item"
-                  }
-                  onClick={() => setVista(item.id)}
-                  title={`Alt+${indice + 1}`}
-                >
-                  {item.etiqueta}
-                </button>
-              ))}
-            </nav>
-          </>
-        ) : (
-          <button
-            type="button"
-            className="boton-menu"
-            onClick={() => setMenuVisible(true)}
-            title="Mostrar menú (Ctrl+B)"
-            aria-label="Mostrar menú"
-          >
-            ☰
-          </button>
-        )}
+      <aside className="barra-lateral">
+        <h1 className="marca">Finanzas</h1>
+        <nav className="navegacion">
+          {NAVEGACION.map((item, indice) => (
+            <button
+              key={item.id}
+              type="button"
+              className={item.id === vista ? "nav-item activo" : "nav-item"}
+              onClick={() => setVista(item.id)}
+              title={`Alt+${indice + 1}`}
+            >
+              {item.etiqueta}
+            </button>
+          ))}
+        </nav>
       </aside>
       <main className="contenido">
         {vista === "dashboard" && <PantallaDashboard />}
