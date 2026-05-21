@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { formatearMontoEntero } from "../../shared/formato";
 import { MESES } from "../recurrencia/recurrencia.tipos";
+import { GraficoProyeccion } from "./GraficoProyeccion";
 import { guardarSupuestos, obtenerSupuestos } from "./proyeccion.repositorio";
 import { obtenerProyeccion } from "./proyeccion.servicio";
 import {
@@ -10,39 +11,12 @@ import {
 } from "./proyeccion.tipos";
 import "./proyeccion.css";
 
-const ANCHO_GRAFICO = 600;
-const ALTO_GRAFICO = 130;
-const COLOR_NOMINAL = "var(--accent)";
-const COLOR_USD = "#6b8aa6";
-
 /** Etiqueta del mes calendario que está a `indice` meses de hoy. */
 function etiquetaMes(indice: number): string {
   if (indice === 0) return "Hoy";
   const ahora = new Date();
   const fecha = new Date(ahora.getFullYear(), ahora.getMonth() + indice, 1);
   return `${MESES[fecha.getMonth()]} ${fecha.getFullYear()}`;
-}
-
-/**
- * Rebasa una serie a índice 100 en su primer valor. Permite comparar dos
- * curvas de escalas distintas —pesos y dólares— sobre un mismo eje.
- */
-function indexar(valores: number[]): number[] {
-  const base = valores[0] || 1;
-  return valores.map((valor) => (valor / base) * 100);
-}
-
-/** Polilínea de una serie, escalada al recuadro con un min/max compartido. */
-function polilinea(serie: number[], minimo: number, maximo: number): string {
-  if (serie.length < 2) return "";
-  const rango = maximo - minimo || 1;
-  return serie
-    .map((valor, indice) => {
-      const x = (indice / (serie.length - 1)) * ANCHO_GRAFICO;
-      const y = ALTO_GRAFICO - ((valor - minimo) / rango) * ALTO_GRAFICO;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
 }
 
 export function PantallaProyeccion() {
@@ -94,12 +68,6 @@ export function PantallaProyeccion() {
     setHorizonte(nuevo);
     ejecutar(nuevo, inflacion, rendimiento);
   }
-
-  const indiceNominal = indexar(puntos.map((p) => Number(p.patrimonioNominal)));
-  const indiceUsd = indexar(puntos.map((p) => Number(p.patrimonioUsd)));
-  const indices = [...indiceNominal, ...indiceUsd];
-  const minimo = indices.length > 0 ? Math.min(...indices) : 0;
-  const maximo = indices.length > 0 ? Math.max(...indices) : 0;
 
   return (
     <section>
@@ -178,42 +146,7 @@ export function PantallaProyeccion() {
       ) : (
         <>
           <div className="grafico-proyeccion">
-            <div className="grafico-leyenda">
-              <span className="leyenda-item">
-                <span
-                  className="leyenda-punto"
-                  style={{ background: COLOR_NOMINAL }}
-                />
-                Patrimonio nominal
-              </span>
-              <span className="leyenda-item">
-                <span
-                  className="leyenda-punto"
-                  style={{ background: COLOR_USD }}
-                />
-                Valor en USD
-              </span>
-              <span className="leyenda-nota">índice base 100 = hoy</span>
-            </div>
-            <svg
-              viewBox={`0 0 ${ANCHO_GRAFICO} ${ALTO_GRAFICO}`}
-              preserveAspectRatio="none"
-            >
-              <polyline
-                points={polilinea(indiceNominal, minimo, maximo)}
-                fill="none"
-                stroke={COLOR_NOMINAL}
-                strokeWidth="2"
-                vectorEffect="non-scaling-stroke"
-              />
-              <polyline
-                points={polilinea(indiceUsd, minimo, maximo)}
-                fill="none"
-                stroke={COLOR_USD}
-                strokeWidth="2"
-                vectorEffect="non-scaling-stroke"
-              />
-            </svg>
+            <GraficoProyeccion puntos={puntos} />
           </div>
 
           <table className="tabla">

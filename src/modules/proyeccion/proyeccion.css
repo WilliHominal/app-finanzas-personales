@@ -34,10 +34,48 @@
   margin-bottom: 22px;
 }
 
-.grafico-proyeccion svg {
+.grafico-svg {
   display: block;
   width: 100%;
-  height: 130px;
+  height: auto;
+}
+
+.grafico-grilla {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.grafico-eje {
+  fill: var(--muted);
+  font-size: 11px;
+}
+
+.grafico-linea {
+  fill: none;
+  stroke-width: 2.5;
+}
+
+.grafico-guia {
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.grafico-tooltip {
+  fill: var(--bg);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.grafico-tooltip-titulo {
+  fill: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.grafico-tooltip-texto {
+  fill: var(--muted);
+  font-size: 10.5px;
 }
 
 .grafico-leyenda {
