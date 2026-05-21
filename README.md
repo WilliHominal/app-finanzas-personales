@@ -8,9 +8,11 @@ Toda la información vive en un único archivo SQLite local — sin nube, sin cu
 
 - **Cuentas multidivisa** — ARS, USD, USDT y USDC, agrupadas por bloque de liquidez.
 - **Movimientos** — ingresos, gastos, transferencias y *canjes* (cambio entre monedas, con monto de origen y de destino propios).
-- **Reglas recurrentes** — suscripciones y sueldos que se registran solos (modo Automático) o quedan como pendientes de confirmar.
+- **Reglas recurrentes** — suscripciones, sueldos y pagos anuales que se registran solos (modo Automático) o quedan como pendientes de confirmar.
+- **Rendimientos** — cuentas remuneradas con TNA por tramos; el interés compuesto se acredita solo, día a día.
+- **Préstamos** — otorgados y recibidos, con sus cobros, pagos y ampliaciones, y el historial de cada uno.
 - **Dashboard** — totales por moneda y patrimonio consolidado, con el saldo de cada cuenta.
-- **Cotizaciones y calculadora** — dólar financiero y cripto de carga manual, con conversor incorporado.
+- **Cotizaciones automáticas** — dólar MEP y cripto desde dolarapi.com, con cache offline y override manual.
 - **Decimal exacto** — el dinero nunca se representa con punto flotante.
 
 ## Stack
