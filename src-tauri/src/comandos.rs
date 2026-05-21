@@ -251,7 +251,7 @@ pub struct SupuestosEntrada {
 pub struct PuntoSalida {
     mes: u32,
     patrimonio_nominal: String,
-    patrimonio_real: String,
+    patrimonio_usd: String,
 }
 
 /// Proyecta el patrimonio mes a mes. Arma el estado, las reglas y los
@@ -318,7 +318,7 @@ pub fn proyectar(
     .map(|punto| PuntoSalida {
         mes: punto.mes,
         patrimonio_nominal: punto.patrimonio_nominal.to_string(),
-        patrimonio_real: punto.patrimonio_real.to_string(),
+        patrimonio_usd: punto.patrimonio_usd.to_string(),
     })
     .collect()
 }

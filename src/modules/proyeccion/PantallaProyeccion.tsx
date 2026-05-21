@@ -10,10 +10,10 @@ import {
 } from "./proyeccion.tipos";
 import "./proyeccion.css";
 
-type Modo = "nominal" | "real";
-
 const ANCHO_GRAFICO = 600;
 const ALTO_GRAFICO = 130;
+const COLOR_NOMINAL = "var(--accent)";
+const COLOR_USD = "#6b8aa6";
 
 /** Etiqueta del mes calendario que está a `indice` meses de hoy. */
 function etiquetaMes(indice: number): string {
@@ -23,15 +23,22 @@ function etiquetaMes(indice: number): string {
   return `${MESES[fecha.getMonth()]} ${fecha.getFullYear()}`;
 }
 
-/** Arma los puntos de la polilínea del gráfico, escalados al recuadro. */
-function lineaDelGrafico(valores: number[]): string {
-  if (valores.length < 2) return "";
-  const minimo = Math.min(...valores);
-  const maximo = Math.max(...valores);
+/**
+ * Rebasa una serie a índice 100 en su primer valor. Permite comparar dos
+ * curvas de escalas distintas —pesos y dólares— sobre un mismo eje.
+ */
+function indexar(valores: number[]): number[] {
+  const base = valores[0] || 1;
+  return valores.map((valor) => (valor / base) * 100);
+}
+
+/** Polilínea de una serie, escalada al recuadro con un min/max compartido. */
+function polilinea(serie: number[], minimo: number, maximo: number): string {
+  if (serie.length < 2) return "";
   const rango = maximo - minimo || 1;
-  return valores
+  return serie
     .map((valor, indice) => {
-      const x = (indice / (valores.length - 1)) * ANCHO_GRAFICO;
+      const x = (indice / (serie.length - 1)) * ANCHO_GRAFICO;
       const y = ALTO_GRAFICO - ((valor - minimo) / rango) * ALTO_GRAFICO;
       return `${x.toFixed(1)},${y.toFixed(1)}`;
     })
@@ -40,14 +47,17 @@ function lineaDelGrafico(valores: number[]): string {
 
 export function PantallaProyeccion() {
   const [horizonte, setHorizonte] = useState<Horizonte>(12);
-  const [modo, setModo] = useState<Modo>("nominal");
   const [inflacion, setInflacion] = useState("0");
   const [rendimiento, setRendimiento] = useState("0");
   const [puntos, setPuntos] = useState<PuntoProyeccion[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
-  async function ejecutar(horizonteUsado: Horizonte, infl: string, rend: string) {
+  async function ejecutar(
+    horizonteUsado: Horizonte,
+    infl: string,
+    rend: string,
+  ) {
     setCargando(true);
     setError("");
     try {
@@ -85,9 +95,11 @@ export function PantallaProyeccion() {
     ejecutar(nuevo, inflacion, rendimiento);
   }
 
-  const valores = puntos.map((punto) =>
-    Number(modo === "nominal" ? punto.patrimonioNominal : punto.patrimonioReal),
-  );
+  const indiceNominal = indexar(puntos.map((p) => Number(p.patrimonioNominal)));
+  const indiceUsd = indexar(puntos.map((p) => Number(p.patrimonioUsd)));
+  const indices = [...indiceNominal, ...indiceUsd];
+  const minimo = indices.length > 0 ? Math.min(...indices) : 0;
+  const maximo = indices.length > 0 ? Math.max(...indices) : 0;
 
   return (
     <section>
@@ -134,7 +146,9 @@ export function PantallaProyeccion() {
         </div>
 
         <div className="campo">
-          <label htmlFor="proy-rendimiento">Rendimiento inversiones (%)</label>
+          <label htmlFor="proy-rendimiento">
+            Rendimiento inversiones anual (%)
+          </label>
           <input
             id="proy-rendimiento"
             type="number"
@@ -153,30 +167,6 @@ export function PantallaProyeccion() {
         >
           {cargando ? "Calculando…" : "Recalcular"}
         </button>
-
-        <div className="grupo-control">
-          <span>Vista</span>
-          <div className="botones-segmentados">
-            <button
-              type="button"
-              className={
-                modo === "nominal" ? "boton-segmento activo" : "boton-segmento"
-              }
-              onClick={() => setModo("nominal")}
-            >
-              Nominal
-            </button>
-            <button
-              type="button"
-              className={
-                modo === "real" ? "boton-segmento activo" : "boton-segmento"
-              }
-              onClick={() => setModo("real")}
-            >
-              Pesos de hoy
-            </button>
-          </div>
-        </div>
       </div>
 
       {error && <p className="error">{error}</p>}
@@ -188,14 +178,38 @@ export function PantallaProyeccion() {
       ) : (
         <>
           <div className="grafico-proyeccion">
+            <div className="grafico-leyenda">
+              <span className="leyenda-item">
+                <span
+                  className="leyenda-punto"
+                  style={{ background: COLOR_NOMINAL }}
+                />
+                Patrimonio nominal
+              </span>
+              <span className="leyenda-item">
+                <span
+                  className="leyenda-punto"
+                  style={{ background: COLOR_USD }}
+                />
+                Valor en USD
+              </span>
+              <span className="leyenda-nota">índice base 100 = hoy</span>
+            </div>
             <svg
               viewBox={`0 0 ${ANCHO_GRAFICO} ${ALTO_GRAFICO}`}
               preserveAspectRatio="none"
             >
               <polyline
-                points={lineaDelGrafico(valores)}
+                points={polilinea(indiceNominal, minimo, maximo)}
                 fill="none"
-                stroke="var(--accent)"
+                stroke={COLOR_NOMINAL}
+                strokeWidth="2"
+                vectorEffect="non-scaling-stroke"
+              />
+              <polyline
+                points={polilinea(indiceUsd, minimo, maximo)}
+                fill="none"
+                stroke={COLOR_USD}
                 strokeWidth="2"
                 vectorEffect="non-scaling-stroke"
               />
@@ -206,9 +220,8 @@ export function PantallaProyeccion() {
             <thead>
               <tr>
                 <th>Mes</th>
-                <th className="monto">
-                  Patrimonio {modo === "nominal" ? "nominal" : "en pesos de hoy"}
-                </th>
+                <th className="monto">Patrimonio nominal</th>
+                <th className="monto">Valor en USD</th>
               </tr>
             </thead>
             <tbody>
@@ -216,12 +229,10 @@ export function PantallaProyeccion() {
                 <tr key={punto.mes}>
                   <td>{etiquetaMes(punto.mes)}</td>
                   <td className="monto">
-                    {formatearMontoEntero(
-                      modo === "nominal"
-                        ? punto.patrimonioNominal
-                        : punto.patrimonioReal,
-                    )}{" "}
-                    ARS
+                    {formatearMontoEntero(punto.patrimonioNominal)} ARS
+                  </td>
+                  <td className="monto">
+                    {formatearMontoEntero(punto.patrimonioUsd)} USD
                   </td>
                 </tr>
               ))}

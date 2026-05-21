@@ -10,5 +10,5 @@ export interface SupuestosProyeccion {
 export interface PuntoProyeccion {
   mes: number;
   patrimonioNominal: string;
-  patrimonioReal: string;
+  patrimonioUsd: string;
 }

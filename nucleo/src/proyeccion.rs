@@ -65,13 +65,13 @@ pub struct Supuestos {
     pub dolar_inicial: Decimal,
 }
 
-/// Un mes de la proyección: el patrimonio en pesos nominales y en pesos
-/// de hoy (real, descontada la inflación acumulada).
+/// Un mes de la proyección: el patrimonio en pesos nominales y su valor
+/// equivalente en dólares, al dólar proyectado de ese mes.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PuntoProyeccion {
     pub mes: u32,
     pub patrimonio_nominal: Decimal,
-    pub patrimonio_real: Decimal,
+    pub patrimonio_usd: Decimal,
 }
 
 /// Año y mes calendario a `desplazamiento` meses de `hoy`.
@@ -113,8 +113,8 @@ fn factor_mensual(tasa_anual: Decimal) -> Decimal {
 /// Devuelve un punto por mes —el índice 0 es hoy—. Cada mes capitaliza las
 /// cuentas remuneradas y las inversiones, suma los flujos de las reglas que
 /// caen ese mes y revalúa los dólares al dólar proyectado. Los préstamos
-/// van congelados dentro de `pesos`. El patrimonio real descuenta la
-/// inflación acumulada.
+/// van congelados dentro de `pesos`. El valor en dólares divide el
+/// patrimonio nominal por el dólar proyectado de cada mes.
 pub fn proyectar(
     estado: EstadoInicial,
     remuneradas: &[CuentaRemunerada],
@@ -163,12 +163,16 @@ pub fn proyectar(
         let dolar = supuestos.dolar_inicial * acumulado_inflacion;
         let remunerada_total: Decimal = saldos_remuneradas.iter().sum();
         let nominal = pesos + remunerada_total + dolares * dolar + inversiones;
-        let real = nominal / acumulado_inflacion;
+        let en_usd = if dolar.is_zero() {
+            Decimal::ZERO
+        } else {
+            nominal / dolar
+        };
 
         serie.push(PuntoProyeccion {
             mes,
             patrimonio_nominal: nominal.round_dp(2),
-            patrimonio_real: real.round_dp(2),
+            patrimonio_usd: en_usd.round_dp(2),
         });
     }
 
@@ -258,7 +262,7 @@ mod tests {
         );
 
         assert_eq!(serie[0].patrimonio_nominal, dec("11500"));
-        assert_eq!(serie[0].patrimonio_real, dec("11500"));
+        assert_eq!(serie[0].patrimonio_usd, dec("11.5"));
     }
 
     #[test]
@@ -344,9 +348,9 @@ mod tests {
     }
 
     #[test]
-    fn el_patrimonio_real_descuenta_la_inflacion() {
+    fn el_patrimonio_en_usd_cae_cuando_los_pesos_se_devaluan() {
         let serie = proyectar(
-            estado("1000", "0", "0"),
+            estado("112000", "0", "0"),
             &[],
             &[],
             supuestos("0.12", "0"),
@@ -354,14 +358,15 @@ mod tests {
             "2026-05-21",
         );
 
-        assert_eq!(serie[12].patrimonio_nominal, dec("1000"));
-        assert!(serie[12].patrimonio_real > dec("892"));
-        assert!(serie[12].patrimonio_real < dec("893"));
-        assert!(serie[12].patrimonio_real < serie[12].patrimonio_nominal);
+        assert_eq!(serie[12].patrimonio_nominal, dec("112000"));
+        assert_eq!(serie[0].patrimonio_usd, dec("112"));
+        assert!(serie[12].patrimonio_usd > dec("99"));
+        assert!(serie[12].patrimonio_usd < dec("101"));
+        assert!(serie[12].patrimonio_usd < serie[0].patrimonio_usd);
     }
 
     #[test]
-    fn los_dolares_siguen_a_la_inflacion() {
+    fn los_dolares_se_mantienen_estables_en_la_vista_usd() {
         let serie = proyectar(
             estado("0", "100", "0"),
             &[],
@@ -372,10 +377,8 @@ mod tests {
         );
 
         assert_eq!(serie[0].patrimonio_nominal, dec("100000"));
-        assert!(serie[12].patrimonio_nominal > dec("111900"));
-        assert!(serie[12].patrimonio_nominal < dec("112100"));
-        assert!(serie[12].patrimonio_real > dec("99900"));
-        assert!(serie[12].patrimonio_real < dec("100100"));
+        assert!(serie[12].patrimonio_nominal > serie[0].patrimonio_nominal);
+        assert!(serie.iter().all(|p| p.patrimonio_usd == dec("100")));
     }
 
     #[test]
