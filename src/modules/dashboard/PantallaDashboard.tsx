@@ -7,7 +7,6 @@ import { listarMovimientos } from "../movimientos/movimientos.repositorio";
 import { listarCotizaciones } from "../parametros/cotizaciones.repositorio";
 import type { Cotizacion } from "../parametros/cotizaciones.tipos";
 import { obtenerRendimientos } from "../rendimientos/rendimientos.servicio";
-import { PanelCotizaciones } from "./PanelCotizaciones";
 import { obtenerResumen } from "./resumen";
 import "./dashboard.css";
 
@@ -15,6 +14,11 @@ const OPCIONES_CONSOLIDADO: { id: GrupoMoneda; etiqueta: string }[] = [
   { id: "Pesos", etiqueta: "Pesos" },
   { id: "Dolares", etiqueta: "USD" },
 ];
+
+const ETIQUETA_COTIZACION: Record<string, string> = {
+  "Dólar Financiero": "Dólar MEP",
+  "Dólar Cripto": "Dólar Cripto",
+};
 
 export function PantallaDashboard() {
   const [cuentas, setCuentas] = useState<Cuenta[]>([]);
@@ -166,11 +170,25 @@ export function PantallaDashboard() {
                     </span>
                   ) : (
                     <span className="consolidado-vacio">
-                      Cargá las cotizaciones más abajo para ver el patrimonio
-                      consolidado.
+                      Conectate a internet para traer las cotizaciones del
+                      dólar y ver el patrimonio consolidado.
                     </span>
                   )}
                 </div>
+                {cotizacionesListas && (
+                  <div className="consolidado-cotizaciones">
+                    {cotizaciones.map((cotizacion) => (
+                      <span
+                        key={cotizacion.id}
+                        className="consolidado-cotizacion"
+                      >
+                        {ETIQUETA_COTIZACION[cotizacion.nombre] ??
+                          cotizacion.nombre}
+                        <strong>$ {formatearMonto(cotizacion.valor)}</strong>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {Number(gananciaDiaria) > 0 && (
@@ -181,11 +199,6 @@ export function PantallaDashboard() {
                   </span>
                 </div>
               )}
-
-              <PanelCotizaciones
-                cotizaciones={cotizaciones}
-                onActualizada={cargar}
-              />
             </div>
           </div>
 

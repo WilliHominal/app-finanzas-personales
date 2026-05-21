@@ -164,48 +164,26 @@
   font-weight: 600;
 }
 
-/* Panel de cotizaciones del dólar */
-.cotizaciones-panel {
-  border: 1px solid var(--border);
-  border-radius: var(--radio);
-  background: var(--bg);
-}
-
-.cotizacion-fila {
+/* Cotizaciones del dólar dentro de la tarjeta del consolidado */
+.consolidado-cotizaciones {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 16px;
-  border-bottom: 1px solid var(--border);
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  padding-top: 12px;
 }
 
-.cotizacion-nombre {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
+.consolidado-cotizacion {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.72);
 }
 
-.cotizacion-valor {
-  margin-left: auto;
+.consolidado-cotizacion strong {
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
-}
-
-.cotizacion-input {
-  margin-left: auto;
-  width: 104px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 5px 8px;
-  font-size: 13px;
-  font-family: var(--font-mono);
-  background: var(--bg);
-}
-
-.cotizacion-fecha {
-  margin: 0;
-  padding: 7px 16px 9px;
-  font-size: 11px;
-  color: var(--muted);
+  color: #ffffff;
 }
