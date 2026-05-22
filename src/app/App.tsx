@@ -28,13 +28,13 @@ type Vista =
 
 const NAVEGACION: { id: Vista; etiqueta: string }[] = [
   { id: "dashboard", etiqueta: "Dashboard" },
+  { id: "cuentas", etiqueta: "Cuentas" },
+  { id: "categorias", etiqueta: "Categorías" },
   { id: "movimientos", etiqueta: "Movimientos" },
   { id: "recurrencia", etiqueta: "Recurrentes" },
   { id: "rendimientos", etiqueta: "Rendimientos" },
   { id: "prestamos", etiqueta: "Préstamos" },
   { id: "proyeccion", etiqueta: "Proyección" },
-  { id: "cuentas", etiqueta: "Cuentas" },
-  { id: "categorias", etiqueta: "Categorías" },
   { id: "respaldo", etiqueta: "Respaldo" },
 ];
 
