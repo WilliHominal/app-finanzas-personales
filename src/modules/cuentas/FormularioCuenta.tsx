@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import type { Moneda } from "../../shared/monedas";
-import { actualizarCuenta, crearCuenta } from "./cuentas.repositorio";
+import { actualizarCuenta } from "./cuentas.repositorio";
+import { crearCuentaConSaldoInicial } from "./cuentas.servicio";
 import {
   ETIQUETA_TIPO,
   TIPOS_CUENTA,
@@ -27,6 +28,7 @@ export function FormularioCuenta({
   const [monedaId, setMonedaId] = useState(
     cuentaAEditar ? String(cuentaAEditar.monedaId) : "",
   );
+  const [saldoInicial, setSaldoInicial] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
 
@@ -40,6 +42,11 @@ export function FormularioCuenta({
       setError("Elegí una moneda.");
       return;
     }
+    const saldo = saldoInicial.trim();
+    if (!editando && saldo !== "" && !(Number(saldo) >= 0)) {
+      setError("El saldo inicial tiene que ser un número mayor o igual a cero.");
+      return;
+    }
     setError("");
     setGuardando(true);
     try {
@@ -47,10 +54,11 @@ export function FormularioCuenta({
       if (cuentaAEditar) {
         await actualizarCuenta(cuentaAEditar.id, datos);
       } else {
-        await crearCuenta(datos);
+        await crearCuentaConSaldoInicial(datos, saldo);
         setNombre("");
         setTipo("Efectivo");
         setMonedaId("");
+        setSaldoInicial("");
       }
       onGuardada();
     } catch (e) {
@@ -105,6 +113,20 @@ export function FormularioCuenta({
             ))}
         </select>
       </div>
+      {!editando && (
+        <div className="campo">
+          <label htmlFor="cuenta-saldo">Saldo inicial</label>
+          <input
+            id="cuenta-saldo"
+            type="number"
+            step="0.01"
+            min="0"
+            value={saldoInicial}
+            onChange={(e) => setSaldoInicial(e.target.value)}
+            placeholder="0,00 (opcional)"
+          />
+        </div>
+      )}
       <button type="submit" className="boton-primario" disabled={guardando}>
         {guardando ? "Guardando…" : editando ? "Guardar cambios" : "Crear cuenta"}
       </button>

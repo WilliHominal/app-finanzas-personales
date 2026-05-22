@@ -53,6 +53,10 @@ export function FormularioMovimiento({
   const editar = movimientoAEditar;
   const editando = editar !== null;
   const esTransferenciaEditada = editar?.tipo === "Transferencia";
+  // Una apertura ya no se elige a mano, pero las existentes (saldos iniciales,
+  // tenencias, préstamos) siguen siendo editables: monto, fecha y descripción,
+  // sin poder cambiarles el tipo.
+  const editandoApertura = editar?.tipo === "Apertura";
 
   const [tipo, setTipo] = useState<TipoMovimiento>(editar?.tipo ?? "Gasto");
   const [fecha, setFecha] = useState(editar?.fecha ?? hoy());
@@ -229,7 +233,9 @@ export function FormularioMovimiento({
           id="mov-tipo"
           value={tipo}
           onChange={(e) => cambiarTipo(e.target.value as TipoMovimiento)}
+          disabled={editandoApertura}
         >
+          {editandoApertura && <option value="Apertura">Apertura</option>}
           {TIPOS_MOVIMIENTO.map((t) => (
             <option key={t} value={t}>
               {t}

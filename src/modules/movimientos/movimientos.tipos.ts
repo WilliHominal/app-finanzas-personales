@@ -25,9 +25,12 @@ export interface NuevoMovimiento {
   reglaRecurrenteId: number | null;
 }
 
-/** Tipos de movimiento que se pueden registrar. */
+/**
+ * Tipos de movimiento que el usuario puede elegir al registrar un movimiento.
+ * "Apertura" queda fuera a propósito: se genera sola desde el saldo inicial de
+ * una cuenta (o desde tenencias y préstamos), no se elige a mano.
+ */
 export const TIPOS_MOVIMIENTO: TipoMovimiento[] = [
-  "Apertura",
   "Ingreso",
   "Gasto",
   "Transferencia",
